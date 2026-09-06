@@ -1440,7 +1440,7 @@ window.FarmerLogin = function FarmerLogin({
   const [showPassword, setShowPassword] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
-  const handleLoginSubmit = e => {
+  const handleLoginSubmit = async e => {
     e.preventDefault();
     if (!phone || !password) {
       setErrorMsg('Please enter both mobile number and password.');
@@ -1448,19 +1448,28 @@ window.FarmerLogin = function FarmerLogin({
     }
     setIsLoading(true);
     setErrorMsg('');
-    // Simulate auth delay for demo effect
-    setTimeout(() => {
-      onLoginSuccess({
-        name: selectedDistrict === 'West Godavari' ? 'Venkata Satyanarayana Raju' : 'K. Ramachandra Rao',
-        phone: phone,
-        village: `${mandal} Town`,
-        mandal: mandal,
-        district: selectedDistrict,
-        stateName: selectedDistrict === 'Medak' ? 'Telangana' : 'Andhra Pradesh',
-        role: 'FARMER'
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          phone: phone,
+          password: password
+        })
       });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+      onLoginSuccess(data.user);
       navigateTo('farmerDash');
-    }, 900);
+    } catch (error) {
+      setErrorMsg(error.message || 'Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
   const fillDemoFarmer = (dist, mndl, name) => {
     setPhone('9876543210');
