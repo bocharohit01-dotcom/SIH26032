@@ -63,7 +63,50 @@ window.FarmerRegister = function FarmerRegister({ navigateTo, onLoginSuccess }) 
   const handleNext = () => {
     if (validateStep1()) setStep(2);
   };
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
+  if (!validateStep2()) return;
+
+  setIsLoading(true);
+  setErrors({});
+
+  try {
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: formData.fullName,
+        phone: formData.phone,
+        password: formData.password,
+        role: 'FARMER',
+        location_name: `${formData.village}, ${formData.district} (${formData.stateName})`,
+        lat: 17.9500,
+        lng: 78.2500
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.error || data.message || 'Registration failed'
+      );
+    }
+
+    onLoginSuccess(data.user);
+    navigateTo('farmerDash');
+
+  } catch (error) {
+    setErrors({
+      submit: error.message || 'Registration failed. Please try again.'
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
   const inputStyle = (hasError) => ({
     width:'100%', padding:'11px 14px',
     border:`1.5px solid ${hasError ? '#fca5a5' : '#e2e8f0'}`,
