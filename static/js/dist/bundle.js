@@ -681,10 +681,6 @@ window.Navbar = function Navbar({
       background: '#fef2f2',
       border: '1px solid #fecaca',
       color: '#dc2626',
-      position: 'relative',
-      zIndex: 1,
-      flexShrink: 0,
-      whiteSpace: 'nowrap',
       fontSize: 12,
       fontWeight: 700,
       padding: '7px 12px',
@@ -3286,7 +3282,6 @@ window.FarmerDashboard = function FarmerDashboard({
     emoji: '🏦',
     bg: 'linear-gradient(135deg,#dbeafe,#bfdbfe)',
     color: '#2563eb',
-    
     shadow: 'rgba(59,130,246,0.2)',
     title: 'Payout & Receipts',
     desc: 'View digital weighing slips and bank transfer history.'
@@ -5496,20 +5491,7 @@ function App() {
   const [farmerSubView, setFarmerSubView] = React.useState('login');
 
   // ── NAVIGATION & PAGE STATE ───────────────────────────────
-  const [currentPage, setCurrentPage] = React.useState(() => window.history.state && window.history.state.kisanQueuePage || 'farmerDash');
-  React.useEffect(() => {
-    if (!(window.history.state && window.history.state.kisanQueuePage)) {
-      window.history.replaceState({ ...(window.history.state || {}), kisanQueuePage: currentPage }, '', window.location.href);
-    }
-    const handlePopState = event => {
-      setIsNotifOpen(Boolean(event.state && event.state.kisanQueueNotification));
-      if (event.state && event.state.kisanQueuePage) {
-        setCurrentPage(event.state.kisanQueuePage);
-      }
-    };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  const [currentPage, setCurrentPage] = React.useState('farmerDash');
 
   // ── APPLICATION DATA ──────────────────────────────────────
   const [centres] = React.useState(window.DEMO_DATA && window.DEMO_DATA.centres || []);
@@ -5536,16 +5518,7 @@ function App() {
   const unreadNotifCount = (notifications || []).filter(n => !n.read).length;
 
   // ── HANDLERS ──────────────────────────────────────────────
-  const closeNotificationDrawer = () => {
-    if (window.history.state && window.history.state.kisanQueueNotification) {
-      window.history.back();
-    } else {
-      setIsNotifOpen(false);
-    }
-  };
   const navigateTo = pageName => {
-    if (pageName === currentPage) return;
-    window.history.pushState({ ...(window.history.state || {}), kisanQueuePage: pageName }, '', window.location.href);
     setCurrentPage(pageName);
     window.scrollTo({
       top: 0,
@@ -5896,14 +5869,7 @@ function App() {
     user: user,
     setUserRole: setUserRole,
     unreadNotifCount: unreadNotifCount,
-    toggleNotifDrawer: () => {
-      if (isNotifOpen) {
-        closeNotificationDrawer();
-      } else {
-        window.history.pushState({ ...(window.history.state || {}), kisanQueueNotification: true }, '', window.location.href);
-        setIsNotifOpen(true);
-      }
-    },
+    toggleNotifDrawer: () => setIsNotifOpen(!isNotifOpen),
     onLogout: handleLogout
   }), /*#__PURE__*/React.createElement("main", {
     className: "flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 lg:pb-12"
@@ -5964,7 +5930,7 @@ function App() {
     userRole: userRole
   }), /*#__PURE__*/React.createElement(window.NotificationDrawer, {
     isOpen: isNotifOpen,
-    onClose: closeNotificationDrawer,
+    onClose: () => setIsNotifOpen(false),
     notifications: notifications,
     markAllRead: markAllNotifsRead
   }));

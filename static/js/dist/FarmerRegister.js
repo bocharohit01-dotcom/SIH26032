@@ -57,47 +57,20 @@ window.FarmerRegister = function FarmerRegister({
   const handleNext = () => {
     if (validateStep1()) setStep(2);
   };
-  const handleSubmit = async e => {
-  e.preventDefault();
-
-  if (!validateStep2()) return;
-
-  setIsLoading(true);
-  setErrors({});
-
-  try {
-    const response = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name: formData.fullName,
+  const handleSubmit = e => {
+    e.preventDefault();
+    if (!validateStep2()) return;
+    setIsLoading(true);
+    setTimeout(() => {
+      onLoginSuccess({
+        name: formData.fullName || 'New Farmer',
         phone: formData.phone,
-        password: formData.password,
-        role: 'FARMER',
-        location_name: `${formData.village}, ${formData.district} (${formData.stateName})`
-      })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Registration failed');
-    }
-
-    onLoginSuccess(data.user);
-    navigateTo('farmerDash');
-
-  } catch (error) {
-    console.error('Registration error:', error);
-    setErrors({
-      submit: error.message
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
+        village: `${formData.village}, ${formData.district} (${formData.stateName})`,
+        role: 'FARMER'
+      });
+      navigateTo('farmerDash');
+    }, 1000);
+  };
   const inputStyle = hasError => ({
     width: '100%',
     padding: '11px 14px',
