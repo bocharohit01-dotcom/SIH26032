@@ -64,21 +64,6 @@ window.FarmerRegister = function FarmerRegister({ navigateTo, onLoginSuccess }) 
     if (validateStep1()) setStep(2);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!validateStep2()) return;
-    setIsLoading(true);
-    setTimeout(() => {
-      onLoginSuccess({
-        name: formData.fullName || 'New Farmer',
-        phone: formData.phone,
-        village: `${formData.village}, ${formData.district} (${formData.stateName})`,
-        role: 'FARMER'
-      });
-      navigateTo('farmerDash');
-    }, 1000);
-  };
-
   const inputStyle = (hasError) => ({
     width:'100%', padding:'11px 14px',
     border:`1.5px solid ${hasError ? '#fca5a5' : '#e2e8f0'}`,
