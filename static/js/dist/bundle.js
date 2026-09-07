@@ -1472,8 +1472,8 @@ window.FarmerLogin = function FarmerLogin({
     }
   };
   const fillDemoFarmer = (dist, mndl, name) => {
-    setPhone('9876543210');
-    setPassword('pass123');
+    setPhone('9392015878');
+    setPassword('shankar');
     setSelectedDistrict(dist);
     setMandal(mndl);
     setErrorMsg('');
