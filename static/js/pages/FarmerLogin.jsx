@@ -1,10 +1,10 @@
 // Page 2: Farmer Login — Visual Demonstration Theme
 
 window.FarmerLogin = function FarmerLogin({ navigateTo, onLoginSuccess }) {
-  const [phone, setPhone] = React.useState('9876543210');
-  const [password, setPassword] = React.useState('pass123');
-  const [selectedDistrict, setSelectedDistrict] = React.useState('West Godavari');
-  const [mandal, setMandal] = React.useState('Bhimavaram');
+  const [phone, setPhone] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [selectedDistrict, setSelectedDistrict] = React.useState('');
+  const [mandal, setMandal] = React.useState('');
   const [showPassword, setShowPassword] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);

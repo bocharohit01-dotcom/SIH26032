@@ -16,6 +16,7 @@ function App() {
 
   // ── NAVIGATION & PAGE STATE ───────────────────────────────
   const [currentPage, setCurrentPage] = React.useState('farmerDash');
+  const [pageHistory , setPageHistory] = React.useState([])
 
   // ── APPLICATION DATA ──────────────────────────────────────
   const [centres] = React.useState((window.DEMO_DATA && window.DEMO_DATA.centres) || []);
@@ -34,8 +35,23 @@ function App() {
 
   // ── HANDLERS ──────────────────────────────────────────────
   const navigateTo = (pageName) => {
+    setPageHistory(prev => {
+      if (currentPage === pageName) return prev;
+      return [...prev,currentPage];
+    });
     setCurrentPage(pageName);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({top: 0, behavior:'smooth'});
+  };
+  const goBack = () => {
+    setPageHistory(prev => {
+      if (prev.length === 0)return prev;
+      const historyCopy = [...prev];
+      const previousPage = historyCopy.pop();
+      setCurrentPage(previousPage);
+      window.scrollTo({top:0,behavior: 'smooth'});
+
+      return historyCopy;
+    });
   };
 
   const handleLoginSuccess = (userData) => {
@@ -113,7 +129,28 @@ function App() {
   // ══════════════════════════════════════════════════════════
   if (!user) {
     return (
-      <div style={{
+      <div>
+        {currentPage !== 'login' && (
+          <button
+            onClick={goBack}
+            style={{
+              position:'fixed',
+              top:'20px',
+              left:'20px',
+              zIndex:9999,
+              padding:'10px 18px',
+              borderRadius:'10px',
+              border:'none',
+              background:'#1f2937',
+              color:'white',
+              fontSize:'16px',
+              cursor:'pointer',
+            }}
+          >
+            ← Back
+          </button>
+        )}
+        <div style={{
         minHeight:'100vh',
         background:'linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 40%,#e0f2fe 100%)',
         display:'flex', flexDirection:'column',
@@ -320,6 +357,7 @@ function App() {
           © 2026 KisanSeva · Intelligent Agricultural Procurement Platform · Department of Agriculture
         </div>
       </div>
+    </div>
     );
   }
 
@@ -340,6 +378,32 @@ function App() {
         toggleNotifDrawer={() => setIsNotifOpen(!isNotifOpen)}
         onLogout={handleLogout}
       />
+      {/* Global Back Button */}
+{pageHistory.length > 0 && (
+  <button
+    onClick={goBack}
+    style={{
+      position: 'fixed',
+      top: '80px',
+      left: '20px',
+      zIndex: 9999,
+      padding: '10px 18px',
+      borderRadius: '12px',
+      border: '1px solid #d1d5db',
+      background: 'white',
+      color: '#1f2937',
+      fontSize: '15px',
+      fontWeight: '700',
+      cursor: 'pointer',
+      boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px'
+    }}
+  >
+    ← Back
+  </button>
+)}
 
       {/* Main Page View Switcher */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 lg:pb-12">
