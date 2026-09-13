@@ -186,6 +186,12 @@ function App() {
       read: true
     })));
   };
+  const markNotificationRead = notificationId => {
+    setNotifications(prev => prev.map(n => n.id === notificationId ? {
+      ...n,
+      read: true
+    } : n));
+  };
 
   // ══════════════════════════════════════════════════════════
   // ── MULTI-ROLE AUTH GATE SCREEN ───────────────────────────
@@ -574,7 +580,8 @@ function App() {
     isOpen: isNotifOpen,
     onClose: () => setIsNotifOpen(false),
     notifications: notifications,
-    markAllRead: markAllNotifsRead
+    markAllRead: markAllNotifsRead,
+    markNotificationRead: markNotificationRead
   }));
 }
 

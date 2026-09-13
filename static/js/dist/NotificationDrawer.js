@@ -4,7 +4,8 @@ window.NotificationDrawer = function NotificationDrawer({
   isOpen,
   onClose,
   notifications,
-  markAllRead
+  markAllRead,
+  markNotificationRead
 }) {
   if (!isOpen) return null;
   return /*#__PURE__*/React.createElement("div", {
@@ -40,7 +41,8 @@ window.NotificationDrawer = function NotificationDrawer({
     className: "text-center py-12 text-slate-500 text-xs"
   }, "No notifications right now.") : notifications.map(notif => /*#__PURE__*/React.createElement("div", {
     key: notif.id,
-    className: `p-3.5 rounded-2xl border transition space-y-1 ${notif.read ? 'bg-slate-950/40 border-slate-800/80 text-slate-500' : 'bg-emerald-950/30 border-emerald-800 text-slate-200 shadow-sm'}`
+    onClick: () => markNotificationRead(notif.id),
+    className: `p-3.5 rounded-2xl border transition space-y-1 cursor-pointer ${notif.read ? 'bg-slate-950/40 border-slate-800/80 text-slate-500' : 'bg-emerald-950/30 border-emerald-800 text-slate-200 shadow-sm'}`
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between text-xs font-bold"
   }, /*#__PURE__*/React.createElement("span", {

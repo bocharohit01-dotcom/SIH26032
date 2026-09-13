@@ -251,9 +251,7 @@ window.Navbar = function Navbar({ currentPage, navigateTo, userRole, user, setUs
       🌐 Language
     </button>
 
-    <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
-      🔔 Notifications
-    </button>
+    
 
     {userRole === 'FARMER' && (
       <>

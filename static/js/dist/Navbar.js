@@ -263,9 +263,7 @@ window.Navbar = function Navbar({
     className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
   }, "\uD83D\uDC64 Profile"), /*#__PURE__*/React.createElement("button", {
     className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
-  }, "\uD83C\uDF10 Language"), /*#__PURE__*/React.createElement("button", {
-    className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
-  }, "\uD83D\uDD14 Notifications"), userRole === 'FARMER' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+  }, "\uD83C\uDF10 Language"), userRole === 'FARMER' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
     className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
   }, "\uD83D\uDCCD Preferred Procurement Centre"), /*#__PURE__*/React.createElement("button", {
     className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"

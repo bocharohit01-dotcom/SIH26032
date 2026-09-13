@@ -210,6 +210,15 @@ const goBackAuth = () => {
   const markAllNotifsRead = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   };
+  const markNotificationRead = (notificationId) => {
+  setNotifications(prev =>
+    prev.map(n =>
+      n.id === notificationId
+        ? { ...n, read: true }
+        : n
+    )
+  );
+};
 
   // ══════════════════════════════════════════════════════════
   // ── MULTI-ROLE AUTH GATE SCREEN ───────────────────────────
@@ -621,6 +630,7 @@ const goBackAuth = () => {
         onClose={() => setIsNotifOpen(false)}
         notifications={notifications}
         markAllRead={markAllNotifsRead}
+        markNotificationRead={markNotificationRead}
       />
 
     </div>

@@ -1,6 +1,6 @@
 // Reusable Notification Slide-Over Drawer (Dark Theme)
 
-window.NotificationDrawer = function NotificationDrawer({ isOpen, onClose, notifications, markAllRead }) {
+window.NotificationDrawer = function NotificationDrawer({ isOpen, onClose, notifications, markAllRead,markNotificationRead }) {
   if (!isOpen) return null;
 
   return (
@@ -34,7 +34,8 @@ window.NotificationDrawer = function NotificationDrawer({ isOpen, onClose, notif
               notifications.map((notif) => (
                 <div
                   key={notif.id}
-                  className={`p-3.5 rounded-2xl border transition space-y-1 ${
+                  onClick={() => markNotificationRead(notif.id)}
+                  className={`p-3.5 rounded-2xl border transition space-y-1 cursor-pointer ${
                     notif.read
                       ? 'bg-slate-950/40 border-slate-800/80 text-slate-500'
                       : 'bg-emerald-950/30 border-emerald-800 text-slate-200 shadow-sm'

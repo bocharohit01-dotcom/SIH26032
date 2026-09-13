@@ -725,9 +725,7 @@ window.Navbar = function Navbar({
     className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
   }, "\uD83D\uDC64 Profile"), /*#__PURE__*/React.createElement("button", {
     className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
-  }, "\uD83C\uDF10 Language"), /*#__PURE__*/React.createElement("button", {
-    className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
-  }, "\uD83D\uDD14 Notifications"), userRole === 'FARMER' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+  }, "\uD83C\uDF10 Language"), userRole === 'FARMER' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
     className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
   }, "\uD83D\uDCCD Preferred Procurement Centre"), /*#__PURE__*/React.createElement("button", {
     className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
@@ -839,7 +837,8 @@ window.NotificationDrawer = function NotificationDrawer({
   isOpen,
   onClose,
   notifications,
-  markAllRead
+  markAllRead,
+  markNotificationRead
 }) {
   if (!isOpen) return null;
   return /*#__PURE__*/React.createElement("div", {
@@ -875,7 +874,8 @@ window.NotificationDrawer = function NotificationDrawer({
     className: "text-center py-12 text-slate-500 text-xs"
   }, "No notifications right now.") : notifications.map(notif => /*#__PURE__*/React.createElement("div", {
     key: notif.id,
-    className: `p-3.5 rounded-2xl border transition space-y-1 ${notif.read ? 'bg-slate-950/40 border-slate-800/80 text-slate-500' : 'bg-emerald-950/30 border-emerald-800 text-slate-200 shadow-sm'}`
+    onClick: () => markNotificationRead(notif.id),
+    className: `p-3.5 rounded-2xl border transition space-y-1 cursor-pointer ${notif.read ? 'bg-slate-950/40 border-slate-800/80 text-slate-500' : 'bg-emerald-950/30 border-emerald-800 text-slate-200 shadow-sm'}`
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between text-xs font-bold"
   }, /*#__PURE__*/React.createElement("span", {
@@ -5612,6 +5612,12 @@ function App() {
       read: true
     })));
   };
+  const markNotificationRead = notificationId => {
+    setNotifications(prev => prev.map(n => n.id === notificationId ? {
+      ...n,
+      read: true
+    } : n));
+  };
 
   // ══════════════════════════════════════════════════════════
   // ── MULTI-ROLE AUTH GATE SCREEN ───────────────────────────
@@ -6000,7 +6006,8 @@ function App() {
     isOpen: isNotifOpen,
     onClose: () => setIsNotifOpen(false),
     notifications: notifications,
-    markAllRead: markAllNotifsRead
+    markAllRead: markAllNotifsRead,
+    markNotificationRead: markNotificationRead
   }));
 }
 
