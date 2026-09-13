@@ -217,7 +217,7 @@ const goBackAuth = () => {
   if (!user) {
     return (
       <div>
-       {(authHistory.length > 0 || activeRoleTab !== 'farmer' || farmerSubview !== 'login' ) && (
+       {(authHistory.length > 0 || activeRoleTab !== 'farmer' || farmerSubView !== 'login' ) && (
   <button
     type="button"
     onClick={goBackAuth}

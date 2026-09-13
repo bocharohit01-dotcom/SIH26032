@@ -15,6 +15,10 @@ function App() {
 
   // ── NAVIGATION & PAGE STATE ───────────────────────────────
   const [currentPage, setCurrentPage] = React.useState('farmerDash');
+  const [pageHistory, setPageHistory] = React.useState([]);
+
+  //Auth navigation history
+  const [authHistory, setAuthHistory] = React.useState([]);
 
   // ── APPLICATION DATA ──────────────────────────────────────
   const [centres] = React.useState(window.DEMO_DATA && window.DEMO_DATA.centres || []);
@@ -41,16 +45,80 @@ function App() {
   const unreadNotifCount = (notifications || []).filter(n => !n.read).length;
 
   // ── HANDLERS ──────────────────────────────────────────────
+  // ── MAIN APP NAVIGATION ───────────────────────────────────
+  // ── MAIN APP NAVIGATION ───────────────────────────────────
   const navigateTo = pageName => {
+    // Root/Dashboard pages → Back history ఉండకూడదు
+    const rootPages = ['farmerDash', 'officerDash', 'adminDash'];
+    setPageHistory(prev => {
+      // Same page అయితే history మార్చవద్దు
+      if (currentPage === pageName) {
+        return prev;
+      }
+
+      // Dashboardకి వెళ్తే → history clear
+      if (rootPages.includes(pageName)) {
+        return [];
+      }
+
+      // Inner pageకి వెళ్తే → current pageని historyలో save
+      return [...prev, currentPage];
+    });
     setCurrentPage(pageName);
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
   };
+
+  // ── MAIN APP BACK ─────────────────────────────────────────
+  const goBack = () => {
+    setPageHistory(prev => {
+      if (prev.length === 0) {
+        return prev;
+      }
+      const historyCopy = [...prev];
+      const previousPage = historyCopy.pop();
+      setCurrentPage(previousPage);
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      return historyCopy;
+    });
+  };
+
+  // ── AUTH NAVIGATION ───────────────────────────────────────
+  const navigateAuth = (role, subView = 'login') => {
+    if (activeRoleTab === role && farmerSubView === subView) {
+      return;
+    }
+    setAuthHistory(prev => [...prev, {
+      role: activeRoleTab,
+      subView: farmerSubView
+    }]);
+    setActiveRoleTab(role);
+    setFarmerSubView(subView);
+  };
+
+  // ── AUTH BACK ──────────────────────────────────────────────
+  const goBackAuth = () => {
+    setAuthHistory(prev => {
+      if (prev.length === 0) {
+        return prev;
+      }
+      const historyCopy = [...prev];
+      const previousAuth = historyCopy.pop();
+      setActiveRoleTab(previousAuth.role);
+      setFarmerSubView(previousAuth.subView);
+      return historyCopy;
+    });
+  };
   const handleLoginSuccess = userData => {
     setUser(userData);
     setUserRole(userData.role || 'FARMER');
+    setPageHistory([]);
+    setAuthHistory([]);
 
     // Auto-select nearest matching mandi centre based on farmer's district
     if (userData.district && centres && centres.length > 0) {
@@ -74,6 +142,11 @@ function App() {
     setUserRole(null);
     setActiveRoleTab('farmer');
     setFarmerSubView('login');
+
+    //Reset all navigation history
+    setPageHistory([]);
+    setAuthHistory([]);
+    setCurrentPage('farmerDash');
   };
   const handleCreateBooking = newBooking => {
     setBookings([newBooking, ...bookings]);
@@ -118,7 +191,28 @@ function App() {
   // ── MULTI-ROLE AUTH GATE SCREEN ───────────────────────────
   // ══════════════════════════════════════════════════════════
   if (!user) {
-    return /*#__PURE__*/React.createElement("div", {
+    return /*#__PURE__*/React.createElement("div", null, (authHistory.length > 0 || activeRoleTab !== 'farmer' || farmerSubView !== 'login') && /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      onClick: goBackAuth,
+      style: {
+        position: 'fixed',
+        top: '20px',
+        left: '20px',
+        zIndex: 9999,
+        padding: '10px 18px',
+        borderRadius: '12px',
+        border: '1px solid #d1d5db',
+        background: 'white',
+        color: '#1f2937',
+        fontSize: '15px',
+        fontWeight: '700',
+        cursor: 'pointer',
+        boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px'
+      }
+    }, "\u2190 Back"), /*#__PURE__*/React.createElement("div", {
       style: {
         minHeight: '100vh',
         background: 'linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 40%,#e0f2fe 100%)',
@@ -196,10 +290,7 @@ function App() {
         padding: '0 16px'
       }
     }, /*#__PURE__*/React.createElement("button", {
-      onClick: () => {
-        setActiveRoleTab('farmer');
-        setFarmerSubView('login');
-      },
+      onClick: () => navigateAuth('farmer', 'login'),
       style: {
         padding: '12px 22px',
         borderRadius: 16,
@@ -231,7 +322,7 @@ function App() {
         opacity: 0.85
       }
     }, "Slot Booking & Receipts"))), /*#__PURE__*/React.createElement("button", {
-      onClick: () => setActiveRoleTab('officer'),
+      onClick: () => navigateAuth('officer', 'login'),
       style: {
         padding: '12px 22px',
         borderRadius: 16,
@@ -263,7 +354,7 @@ function App() {
         opacity: 0.85
       }
     }, "Gate & Moisture Verification"))), /*#__PURE__*/React.createElement("button", {
-      onClick: () => setActiveRoleTab('admin'),
+      onClick: () => navigateAuth('admin', 'login'),
       style: {
         padding: '12px 22px',
         borderRadius: 16,
@@ -303,7 +394,7 @@ function App() {
         marginBottom: 4
       }
     }, /*#__PURE__*/React.createElement("button", {
-      onClick: () => setFarmerSubView('login'),
+      onClick: () => navigateAuth('farmer', 'login'),
       style: {
         padding: '6px 16px',
         borderRadius: 20,
@@ -316,7 +407,7 @@ function App() {
         transition: 'all 0.2s'
       }
     }, "\uD83D\uDD11 Login"), /*#__PURE__*/React.createElement("button", {
-      onClick: () => setFarmerSubView('register'),
+      onClick: () => navigateAuth('farmer', 'register'),
       style: {
         padding: '6px 16px',
         borderRadius: 20,
@@ -334,7 +425,11 @@ function App() {
       }
     }, activeRoleTab === 'farmer' && farmerSubView === 'login' && /*#__PURE__*/React.createElement(window.FarmerLogin, {
       navigateTo: page => {
-        if (page === 'farmerRegister') setFarmerSubView('register');else if (page === 'officerLogin') setActiveRoleTab('officer');
+        if (page === 'farmerRegister') {
+          navigateAuth('farmer', 'register');
+        } else if (page === 'officerLogin') {
+          navigateAuth('officer', 'login');
+        }
       },
       onLoginSuccess: handleLoginSuccess
     }), activeRoleTab === 'farmer' && farmerSubView === 'register' && /*#__PURE__*/React.createElement(window.FarmerRegister, {
@@ -377,7 +472,7 @@ function App() {
         color: '#94a3b8',
         fontFamily: 'Inter,sans-serif'
       }
-    }, "\xA9 2026 KisanSeva \xB7 Intelligent Agricultural Procurement Platform \xB7 Department of Agriculture"));
+    }, "\xA9 2026 KisanSeva \xB7 Intelligent Agricultural Procurement Platform \xB7 Department of Agriculture")));
   }
 
   // ══════════════════════════════════════════════════════════
@@ -396,7 +491,31 @@ function App() {
     onLogout: handleLogout
   }), /*#__PURE__*/React.createElement("main", {
     className: "flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 lg:pb-12"
-  }, currentPage === 'landing' && /*#__PURE__*/React.createElement(window.LandingPage, {
+  }, pageHistory.length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: '16px',
+      display: 'flex',
+      alignItems: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: goBack,
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '8px',
+      padding: '9px 15px',
+      border: '1px solid #cbd5e1',
+      borderRadius: '10px',
+      background: '#ffffff',
+      color: '#1f2937',
+      fontSize: '14px',
+      fontWeight: '700',
+      cursor: 'pointer',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+      transition: 'all 0.2s'
+    }
+  }, "\u2190 Back")), currentPage === 'landing' && /*#__PURE__*/React.createElement(window.LandingPage, {
     navigateTo: navigateTo,
     mspRates: window.DEMO_DATA.mspRates
   }), currentPage === 'farmerDash' && /*#__PURE__*/React.createElement(window.FarmerDashboard, {
