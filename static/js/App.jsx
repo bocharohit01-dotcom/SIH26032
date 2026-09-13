@@ -16,7 +16,10 @@ function App() {
 
   // ── NAVIGATION & PAGE STATE ───────────────────────────────
   const [currentPage, setCurrentPage] = React.useState('farmerDash');
-  const [pageHistory , setPageHistory] = React.useState([])
+  const [pageHistory , setPageHistory] = React.useState([]);
+  
+  //Auth navigation history
+  const [authHistory,setAuthHistory] = React.useState([]);
 
   // ── APPLICATION DATA ──────────────────────────────────────
   const [centres] = React.useState((window.DEMO_DATA && window.DEMO_DATA.centres) || []);
@@ -34,29 +37,107 @@ function App() {
   const unreadNotifCount = (notifications || []).filter(n => !n.read).length;
 
   // ── HANDLERS ──────────────────────────────────────────────
-  const navigateTo = (pageName) => {
-    setPageHistory(prev => {
-      if (currentPage === pageName) return prev;
-      return [...prev,currentPage];
-    });
-    setCurrentPage(pageName);
-    window.scrollTo({top: 0, behavior:'smooth'});
-  };
-  const goBack = () => {
-    setPageHistory(prev => {
-      if (prev.length === 0)return prev;
-      const historyCopy = [...prev];
-      const previousPage = historyCopy.pop();
-      setCurrentPage(previousPage);
-      window.scrollTo({top:0,behavior: 'smooth'});
+  // ── MAIN APP NAVIGATION ───────────────────────────────────
+// ── MAIN APP NAVIGATION ───────────────────────────────────
+const navigateTo = (pageName) => {
 
-      return historyCopy;
+  // Root/Dashboard pages → Back history ఉండకూడదు
+  const rootPages = ['farmerDash', 'officerDash', 'adminDash'];
+
+  setPageHistory(prev => {
+
+    // Same page అయితే history మార్చవద్దు
+    if (currentPage === pageName) {
+      return prev;
+    }
+
+    // Dashboardకి వెళ్తే → history clear
+    if (rootPages.includes(pageName)) {
+      return [];
+    }
+
+    // Inner pageకి వెళ్తే → current pageని historyలో save
+    return [...prev, currentPage];
+  });
+
+  setCurrentPage(pageName);
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+};
+
+
+// ── MAIN APP BACK ─────────────────────────────────────────
+const goBack = () => {
+  setPageHistory(prev => {
+
+    if (prev.length === 0) {
+      return prev;
+    }
+
+    const historyCopy = [...prev];
+
+    const previousPage = historyCopy.pop();
+
+    setCurrentPage(previousPage);
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
     });
-  };
+
+    return historyCopy;
+  });
+};
+
+
+// ── AUTH NAVIGATION ───────────────────────────────────────
+const navigateAuth = (role, subView = 'login') => {
+
+  if (activeRoleTab === role && farmerSubView === subView) {
+    return;
+  }
+
+  setAuthHistory(prev => [
+    ...prev,
+    {
+      role: activeRoleTab,
+      subView: farmerSubView
+    }
+  ]);
+
+  setActiveRoleTab(role);
+  setFarmerSubView(subView);
+};
+
+
+// ── AUTH BACK ──────────────────────────────────────────────
+const goBackAuth = () => {
+
+  setAuthHistory(prev => {
+
+    if (prev.length === 0) {
+      return prev;
+    }
+
+    const historyCopy = [...prev];
+
+    const previousAuth = historyCopy.pop();
+
+    setActiveRoleTab(previousAuth.role);
+    setFarmerSubView(previousAuth.subView);
+
+    return historyCopy;
+  });
+};
 
   const handleLoginSuccess = (userData) => {
     setUser(userData);
     setUserRole(userData.role || 'FARMER');
+    setPageHistory([]);
+    setAuthHistory([]);
     
     // Auto-select nearest matching mandi centre based on farmer's district
     if (userData.district && centres && centres.length > 0) {
@@ -84,6 +165,12 @@ function App() {
     setUserRole(null);
     setActiveRoleTab('farmer');
     setFarmerSubView('login');
+
+    //Reset all navigation history
+    setPageHistory([]);
+     setAuthHistory([]);
+
+     setCurrentPage('farmerDash')
   };
 
   const handleCreateBooking = (newBooking) => {
@@ -130,26 +217,32 @@ function App() {
   if (!user) {
     return (
       <div>
-        {currentPage !== 'login' && (
-          <button
-            onClick={goBack}
-            style={{
-              position:'fixed',
-              top:'20px',
-              left:'20px',
-              zIndex:9999,
-              padding:'10px 18px',
-              borderRadius:'10px',
-              border:'none',
-              background:'#1f2937',
-              color:'white',
-              fontSize:'16px',
-              cursor:'pointer',
-            }}
-          >
-            ← Back
-          </button>
-        )}
+       {(authHistory.length > 0 || activeRoleTab !== 'farmer' || farmerSubview !== 'login' ) && (
+  <button
+    type="button"
+    onClick={goBackAuth}
+    style={{
+      position: 'fixed',
+      top: '20px',
+      left: '20px',
+      zIndex: 9999,
+      padding: '10px 18px',
+      borderRadius: '12px',
+      border: '1px solid #d1d5db',
+      background: 'white',
+      color: '#1f2937',
+      fontSize: '15px',
+      fontWeight: '700',
+      cursor: 'pointer',
+      boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px'
+    }}
+  >
+    ← Back
+  </button>
+)} 
         <div style={{
         minHeight:'100vh',
         background:'linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 40%,#e0f2fe 100%)',
@@ -193,7 +286,7 @@ function App() {
         }}>
           {/* Farmer Portal Tab */}
           <button
-            onClick={() => { setActiveRoleTab('farmer'); setFarmerSubView('login'); }}
+            onClick={() => navigateAuth('farmer','login')}
             style={{
               padding:'12px 22px', borderRadius:16,
               fontFamily:'Inter,sans-serif', fontWeight:800, fontSize:14,
@@ -220,7 +313,7 @@ function App() {
 
           {/* Mandi Officer Portal Tab */}
           <button
-            onClick={() => setActiveRoleTab('officer')}
+            onClick={() => navigateAuth('officer','login')}
             style={{
               padding:'12px 22px', borderRadius:16,
               fontFamily:'Inter,sans-serif', fontWeight:800, fontSize:14,
@@ -247,7 +340,7 @@ function App() {
 
           {/* State Admin Portal Tab */}
           <button
-            onClick={() => setActiveRoleTab('admin')}
+            onClick={() => navigateAuth('admin','login')}
             style={{
               padding:'12px 22px', borderRadius:16,
               fontFamily:'Inter,sans-serif', fontWeight:800, fontSize:14,
@@ -280,7 +373,7 @@ function App() {
             marginTop:8, marginBottom:4
           }}>
             <button
-              onClick={() => setFarmerSubView('login')}
+              onClick={() => navigateAuth('farmer','login')}
               style={{
                 padding:'6px 16px', borderRadius:20,
                 fontSize:12, fontWeight:700, cursor:'pointer', border:'none',
@@ -292,7 +385,7 @@ function App() {
               🔑 Login
             </button>
             <button
-              onClick={() => setFarmerSubView('register')}
+              onClick={() => navigateAuth('farmer','register')}
               style={{
                 padding:'6px 16px', borderRadius:20,
                 fontSize:12, fontWeight:700, cursor:'pointer', border:'none',
@@ -311,8 +404,12 @@ function App() {
           {activeRoleTab === 'farmer' && farmerSubView === 'login' && (
             <window.FarmerLogin
               navigateTo={(page) => {
-                if (page === 'farmerRegister') setFarmerSubView('register');
-                else if (page === 'officerLogin') setActiveRoleTab('officer');
+                if (page === 'farmerRegister') {
+                  navigateAuth('farmer', 'register');
+                } 
+                else if (page === 'officerLogin') {
+                  navigateAuth('officer', 'login');
+                }
               }}
               onLoginSuccess={handleLoginSuccess}
             />
@@ -378,35 +475,40 @@ function App() {
         toggleNotifDrawer={() => setIsNotifOpen(!isNotifOpen)}
         onLogout={handleLogout}
       />
-      {/* Global Back Button */}
-{pageHistory.length > 0 && (
-  <button
-    onClick={goBack}
-    style={{
-      position: 'fixed',
-      top: '80px',
-      left: '20px',
-      zIndex: 9999,
-      padding: '10px 18px',
-      borderRadius: '12px',
-      border: '1px solid #d1d5db',
-      background: 'white',
-      color: '#1f2937',
-      fontSize: '15px',
-      fontWeight: '700',
-      cursor: 'pointer',
-      boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '6px'
-    }}
-  >
-    ← Back
-  </button>
-)}
-
+     
       {/* Main Page View Switcher */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 lg:pb-12">
+       {/* Global Back Navigation - Top Left */}
+{pageHistory.length > 0 && (
+  <div style={{
+    marginBottom: '16px',
+    display: 'flex',
+    alignItems: 'center'
+  }}>
+    <button
+      type="button"
+      onClick={goBack}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '9px 15px',
+        border: '1px solid #cbd5e1',
+        borderRadius: '10px',
+        background: '#ffffff',
+        color: '#1f2937',
+        fontSize: '14px',
+        fontWeight: '700',
+        cursor: 'pointer',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        transition: 'all 0.2s'
+      }}
+    >
+      ← Back
+    </button>
+  </div>
+)}
+
 
         {currentPage === 'landing' && (
           <window.LandingPage
