@@ -472,6 +472,7 @@ window.Navbar = function Navbar({
   toggleNotifDrawer,
   onLogout
 }) {
+  const [showSettings, setShowSettings] = React.useState(false);
   return /*#__PURE__*/React.createElement("header", {
     style: {
       position: 'sticky',
@@ -614,7 +615,10 @@ window.Navbar = function Navbar({
     onClick: () => navigateTo('landing'),
     className: "px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-white"
   }, /*#__PURE__*/React.createElement("span", null, "Home"))), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-2.5"
+    className: "flex items-center gap-2.5",
+    style: {
+      position: 'relative'
+    }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: toggleNotifDrawer,
     className: "relative p-2 rounded-xl border transition",
@@ -675,12 +679,12 @@ window.Navbar = function Navbar({
       textTransform: 'uppercase'
     }
   }, userRole)), /*#__PURE__*/React.createElement("button", {
-    onClick: onLogout,
-    title: "Logout",
+    onClick: () => setShowSettings(!showSettings),
+    title: "Settings",
     style: {
-      background: '#fef2f2',
-      border: '1px solid #fecaca',
-      color: '#dc2626',
+      background: '#f8fafc',
+      border: '1px solid #cbd5e1',
+      color: '#475569',
       fontSize: 12,
       fontWeight: 700,
       padding: '7px 12px',
@@ -690,18 +694,69 @@ window.Navbar = function Navbar({
       alignItems: 'center',
       gap: 5,
       transition: 'all 0.2s'
-    },
-    onMouseOver: e => Object.assign(e.currentTarget.style, {
-      background: '#fee2e2'
-    }),
-    onMouseOut: e => Object.assign(e.currentTarget.style, {
-      background: '#fef2f2'
-    })
+    }
   }, /*#__PURE__*/React.createElement("i", {
-    className: "fa-solid fa-right-from-bracket"
+    className: "fa-solid fa-gear"
   }), /*#__PURE__*/React.createElement("span", {
     className: "hidden sm:inline"
-  }, "Logout"))) : null))));
+  }, "Settings")), showSettings && (userRole === 'FARMER' || userRole === 'OFFICER') && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      top: 62,
+      right: 80,
+      width: 240,
+      background: 'white',
+      border: '1px solid rgba(5,150,105,0.18)',
+      borderRadius: 16,
+      boxShadow: '0 12px 35px rgba(15,23,42,0.15)',
+      padding: 8,
+      zIndex: 100
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '10px 12px',
+      fontSize: 12,
+      fontWeight: 800,
+      color: '#64748b',
+      borderBottom: '1px solid #e2e8f0',
+      marginBottom: 4
+    }
+  }, "\u2699\uFE0F Settings"), /*#__PURE__*/React.createElement("button", {
+    className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
+  }, "\uD83D\uDC64 Profile"), /*#__PURE__*/React.createElement("button", {
+    className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
+  }, "\uD83C\uDF10 Language"), /*#__PURE__*/React.createElement("button", {
+    className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
+  }, "\uD83D\uDD14 Notifications"), userRole === 'FARMER' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+    className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
+  }, "\uD83D\uDCCD Preferred Procurement Centre"), /*#__PURE__*/React.createElement("button", {
+    className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
+  }, "\uD83D\uDCCB Booking History")), userRole === 'OFFICER' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+    className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
+  }, "\uD83C\uDFE2 Assigned Mandi"), /*#__PURE__*/React.createElement("button", {
+    className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
+  }, "\uD83D\uDCCA Work Summary"), /*#__PURE__*/React.createElement("button", {
+    className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
+  }, "\u2699\uFE0F Queue Preferences")), /*#__PURE__*/React.createElement("button", {
+    className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
+  }, "\u2753 Help & Support"), /*#__PURE__*/React.createElement("button", {
+    className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
+  }, "\u2139\uFE0F About KisanSeva"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: 1,
+      background: '#e2e8f0',
+      margin: '6px 4px'
+    }
+  }), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setShowSettings(false);
+      onLogout();
+    },
+    className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-red-50",
+    style: {
+      color: '#dc2626'
+    }
+  }, "\uD83D\uDEAA Logout"))) : null))));
 };
 
 /* --- static/js/components/MobileNav.jsx --- */

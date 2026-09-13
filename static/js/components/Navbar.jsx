@@ -1,6 +1,7 @@
 // Reusable Navbar Component — Visual Demonstration Theme
 
 window.Navbar = function Navbar({ currentPage, navigateTo, userRole, user, setUserRole, unreadNotifCount, toggleNotifDrawer, onLogout }) {
+  const [showSettings, setShowSettings] = React.useState(false);
   return (
     <header style={{
       position:'sticky', top:0, zIndex:40,
@@ -150,7 +151,8 @@ window.Navbar = function Navbar({ currentPage, navigateTo, userRole, user, setUs
           </nav>
 
           {/* Right Action Icons */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5"
+          style = {{position:'relative'}}>
             
             {/* Notification Bell */}
             <button
@@ -194,23 +196,121 @@ window.Navbar = function Navbar({ currentPage, navigateTo, userRole, user, setUs
                   </span>
                 </div>
 
-                {/* Logout Button */}
-                <button
-                  onClick={onLogout}
-                  title="Logout"
-                  style={{
-                    background:'#fef2f2', border:'1px solid #fecaca',
-                    color:'#dc2626', fontSize:12, fontWeight:700,
-                    padding:'7px 12px', borderRadius:10, cursor:'pointer',
-                    display:'flex', alignItems:'center', gap:5,
-                    transition:'all 0.2s'
-                  }}
-                  onMouseOver={e=>Object.assign(e.currentTarget.style,{background:'#fee2e2'})}
-                  onMouseOut={e=>Object.assign(e.currentTarget.style,{background:'#fef2f2'})}
-                >
-                  <i className="fa-solid fa-right-from-bracket"></i>
-                  <span className="hidden sm:inline">Logout</span>
-                </button>
+                {/* Settings Button */}
+<button
+  onClick={() => setShowSettings(!showSettings)}
+  title="Settings"
+  style={{
+    background:'#f8fafc',
+    border:'1px solid #cbd5e1',
+    color:'#475569',
+    fontSize:12,
+    fontWeight:700,
+    padding:'7px 12px',
+    borderRadius:10,
+    cursor:'pointer',
+    display:'flex',
+    alignItems:'center',
+    gap:5,
+    transition:'all 0.2s'
+  }}
+>
+  <i className="fa-solid fa-gear"></i>
+  <span className="hidden sm:inline">Settings</span>
+</button>
+{showSettings && (userRole === 'FARMER' || userRole === 'OFFICER') && (
+  <div style={{
+    position:'absolute',
+    top:62,
+    right:80,
+    width:240,
+    background:'white',
+    border:'1px solid rgba(5,150,105,0.18)',
+    borderRadius:16,
+    boxShadow:'0 12px 35px rgba(15,23,42,0.15)',
+    padding:8,
+    zIndex:100
+  }}>
+
+    <div style={{
+      padding:'10px 12px',
+      fontSize:12,
+      fontWeight:800,
+      color:'#64748b',
+      borderBottom:'1px solid #e2e8f0',
+      marginBottom:4
+    }}>
+      ⚙️ Settings
+    </div>
+
+    <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
+      👤 Profile
+    </button>
+
+    <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
+      🌐 Language
+    </button>
+
+    <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
+      🔔 Notifications
+    </button>
+
+    {userRole === 'FARMER' && (
+      <>
+        <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
+          📍 Preferred Procurement Centre
+        </button>
+
+        <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
+          📋 Booking History
+        </button>
+      </>
+    )}
+
+    {userRole === 'OFFICER' && (
+      <>
+        <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
+          🏢 Assigned Mandi
+        </button>
+
+        <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
+          📊 Work Summary
+        </button>
+
+        <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
+          ⚙️ Queue Preferences
+        </button>
+      </>
+    )}
+
+    <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
+      ❓ Help & Support
+    </button>
+
+    <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
+      ℹ️ About KisanSeva
+    </button>
+
+    <div style={{
+      height:1,
+      background:'#e2e8f0',
+      margin:'6px 4px'
+    }}></div>
+
+    <button
+      onClick={() => {
+        setShowSettings(false);
+        onLogout();
+      }}
+      className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-red-50"
+      style={{color:'#dc2626'}}
+    >
+      🚪 Logout
+    </button>
+
+  </div>
+)}
+                
               </div>
             ) : null}
 
