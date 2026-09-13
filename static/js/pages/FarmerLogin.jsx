@@ -3,8 +3,7 @@
 window.FarmerLogin = function FarmerLogin({ navigateTo, onLoginSuccess }) {
   const [phone, setPhone] = React.useState('');
   const [password, setPassword] = React.useState('');
-  const [selectedDistrict, setSelectedDistrict] = React.useState('');
-  const [mandal, setMandal] = React.useState('');
+  
   const [showPassword, setShowPassword] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
@@ -48,13 +47,7 @@ window.FarmerLogin = function FarmerLogin({ navigateTo, onLoginSuccess }) {
   }
 };
 
-  const fillDemoFarmer = (dist, mndl, name) => {
-    setPhone('9392015878');
-    setPassword('shankar');
-    setSelectedDistrict(dist);
-    setMandal(mndl);
-    setErrorMsg('');
-  };
+  
 
   const inputStyle = {
     width:'100%', padding:'12px 14px',
@@ -135,7 +128,7 @@ window.FarmerLogin = function FarmerLogin({ navigateTo, onLoginSuccess }) {
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="10-digit mobile number"
+                placeholder="e.g: 1234567890"
                 style={{...inputStyle, paddingLeft:48}}
                 onFocus={e=>Object.assign(e.target.style,{borderColor:'#059669',boxShadow:'0 0 0 3px rgba(5,150,105,0.12)'})}
                 onBlur={e=>Object.assign(e.target.style,{borderColor:'#e2e8f0',boxShadow:'none'})}
@@ -154,7 +147,7 @@ window.FarmerLogin = function FarmerLogin({ navigateTo, onLoginSuccess }) {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
+                placeholder="e.g: Enter Your Password"
                 style={{...inputStyle, paddingRight:44}}
                 onFocus={e=>Object.assign(e.target.style,{borderColor:'#059669',boxShadow:'0 0 0 3px rgba(5,150,105,0.12)'})}
                 onBlur={e=>Object.assign(e.target.style,{borderColor:'#e2e8f0',boxShadow:'none'})}
@@ -174,41 +167,7 @@ window.FarmerLogin = function FarmerLogin({ navigateTo, onLoginSuccess }) {
             </div>
           </div>
 
-          {/* Demo Credentials Box */}
-          <div style={{
-            background:'linear-gradient(135deg,#f0fdf4,#ecfdf5)',
-            border:'1.5px solid rgba(5,150,105,0.25)',
-            borderRadius:12, padding:'14px'
-          }}>
-            <div style={{fontSize:11,fontWeight:800,color:'#065f46',marginBottom:8,letterSpacing:'.04em'}}>
-              🎯 SELECT FARMER DISTRICT & MANDAL DEMO PROFILE:
-            </div>
-            <div style={{display:'flex',flexDirection:'column',gap:6}}>
-              {[
-                { dist: 'West Godavari', mandal: 'Bhimavaram', label: '🌾 Bhimavaram, West Godavari (Bhimavaram Mandi)' },
-                { dist: 'West Godavari', mandal: 'Palakollu', label: '🌾 Palakollu, West Godavari (Palakollu Yard)' },
-                { dist: 'West Godavari', mandal: 'Tanuku', label: '🌾 Tanuku, West Godavari (Tanuku Yard)' },
-                { dist: 'Eluru', mandal: 'Eluru Town', label: '🌾 Eluru District (Eluru Main Complex)' },
-                { dist: 'Guntur', mandal: 'Guntur Town', label: '🌾 Guntur District (Guntur Mirchi Yard)' }
-              ].map(p => (
-                <button
-                  key={p.mandal}
-                  type="button"
-                  onClick={() => fillDemoFarmer(p.dist, p.mandal)}
-                  style={{
-                    width:'100%', background: (selectedDistrict === p.dist && mandal === p.mandal) ? '#d1fae5' : 'white',
-                    border: `1.5px solid ${(selectedDistrict === p.dist && mandal === p.mandal) ? '#059669' : 'rgba(5,150,105,0.2)'}`,
-                    borderRadius:8, padding:'7px 10px', cursor:'pointer',
-                    display:'flex', alignItems:'center', justifyContent:'space-between',
-                    textAlign:'left', transition:'all 0.18s'
-                  }}
-                >
-                  <span style={{fontSize:11,fontWeight:700,color:'#065f46'}}>{p.label}</span>
-                  <span style={{fontSize:10,color:'#059669',fontWeight:800}}>Select</span>
-                </button>
-              ))}
-            </div>
-          </div>
+          
 
           {/* Submit */}
           <button

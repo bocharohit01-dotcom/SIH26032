@@ -4,10 +4,8 @@ window.FarmerLogin = function FarmerLogin({
   navigateTo,
   onLoginSuccess
 }) {
-  const [phone, setPhone] = React.useState('9876543210');
-  const [password, setPassword] = React.useState('pass123');
-  const [selectedDistrict, setSelectedDistrict] = React.useState('West Godavari');
-  const [mandal, setMandal] = React.useState('Bhimavaram');
+  const [phone, setPhone] = React.useState('');
+  const [password, setPassword] = React.useState('');
   const [showPassword, setShowPassword] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
@@ -41,13 +39,6 @@ window.FarmerLogin = function FarmerLogin({
     } finally {
       setIsLoading(false);
     }
-  };
-  const fillDemoFarmer = (dist, mndl, name) => {
-    setPhone('9392015878');
-    setPassword('shankar');
-    setSelectedDistrict(dist);
-    setMandal(mndl);
-    setErrorMsg('');
   };
   const inputStyle = {
     width: '100%',
@@ -194,7 +185,7 @@ window.FarmerLogin = function FarmerLogin({
     type: "tel",
     value: phone,
     onChange: e => setPhone(e.target.value),
-    placeholder: "10-digit mobile number",
+    placeholder: "e.g: 1234567890",
     style: {
       ...inputStyle,
       paddingLeft: 48
@@ -228,7 +219,7 @@ window.FarmerLogin = function FarmerLogin({
     type: showPassword ? 'text' : 'password',
     value: password,
     onChange: e => setPassword(e.target.value),
-    placeholder: "Enter your password",
+    placeholder: "e.g: Enter Your Password",
     style: {
       ...inputStyle,
       paddingRight: 44
@@ -259,77 +250,7 @@ window.FarmerLogin = function FarmerLogin({
     }
   }, /*#__PURE__*/React.createElement("i", {
     className: `fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`
-  })))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: 'linear-gradient(135deg,#f0fdf4,#ecfdf5)',
-      border: '1.5px solid rgba(5,150,105,0.25)',
-      borderRadius: 12,
-      padding: '14px'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      fontWeight: 800,
-      color: '#065f46',
-      marginBottom: 8,
-      letterSpacing: '.04em'
-    }
-  }, "\uD83C\uDFAF SELECT FARMER DISTRICT & MANDAL DEMO PROFILE:"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 6
-    }
-  }, [{
-    dist: 'West Godavari',
-    mandal: 'Bhimavaram',
-    label: '🌾 Bhimavaram, West Godavari (Bhimavaram Mandi)'
-  }, {
-    dist: 'West Godavari',
-    mandal: 'Palakollu',
-    label: '🌾 Palakollu, West Godavari (Palakollu Yard)'
-  }, {
-    dist: 'West Godavari',
-    mandal: 'Tanuku',
-    label: '🌾 Tanuku, West Godavari (Tanuku Yard)'
-  }, {
-    dist: 'Eluru',
-    mandal: 'Eluru Town',
-    label: '🌾 Eluru District (Eluru Main Complex)'
-  }, {
-    dist: 'Guntur',
-    mandal: 'Guntur Town',
-    label: '🌾 Guntur District (Guntur Mirchi Yard)'
-  }].map(p => /*#__PURE__*/React.createElement("button", {
-    key: p.mandal,
-    type: "button",
-    onClick: () => fillDemoFarmer(p.dist, p.mandal),
-    style: {
-      width: '100%',
-      background: selectedDistrict === p.dist && mandal === p.mandal ? '#d1fae5' : 'white',
-      border: `1.5px solid ${selectedDistrict === p.dist && mandal === p.mandal ? '#059669' : 'rgba(5,150,105,0.2)'}`,
-      borderRadius: 8,
-      padding: '7px 10px',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      textAlign: 'left',
-      transition: 'all 0.18s'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 11,
-      fontWeight: 700,
-      color: '#065f46'
-    }
-  }, p.label), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 10,
-      color: '#059669',
-      fontWeight: 800
-    }
-  }, "Select"))))), /*#__PURE__*/React.createElement("button", {
+  })))), /*#__PURE__*/React.createElement("button", {
     type: "submit",
     disabled: isLoading,
     style: {

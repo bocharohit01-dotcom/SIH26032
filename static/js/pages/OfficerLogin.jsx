@@ -1,8 +1,8 @@
 // Page 11: Officer Login Component — Visual Demonstration Theme
 
 window.OfficerLogin = function OfficerLogin({ navigateTo, onLoginSuccess }) {
-  const [officerPhone, setOfficerPhone] = React.useState('9876543220');
-  const [password, setPassword] = React.useState('officer123');
+  const [officerPhone, setOfficerPhone] = React.useState('');
+  const [password, setPassword] = React.useState('');
   const [selectedMandi, setSelectedMandi] = React.useState('Medak Main Agricultural Market Yard');
   const [showPassword, setShowPassword] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState('');
@@ -27,12 +27,7 @@ window.OfficerLogin = function OfficerLogin({ navigateTo, onLoginSuccess }) {
     }, 800);
   };
 
-  const fillOfficerDemo = () => {
-    setOfficerPhone('9876543220');
-    setPassword('officer123');
-    setSelectedMandi('Medak Main Agricultural Market Yard');
-    setErrorMsg('');
-  };
+  
 
   const inputStyle = {
     width:'100%', padding:'12px 14px',
@@ -121,7 +116,7 @@ window.OfficerLogin = function OfficerLogin({ navigateTo, onLoginSuccess }) {
               type="text"
               value={officerPhone}
               onChange={(e) => setOfficerPhone(e.target.value)}
-              placeholder="Officer ID or phone"
+              placeholder="e.g:1234567890"
               style={inputStyle}
               onFocus={e=>Object.assign(e.target.style,{borderColor:'#d97706',boxShadow:'0 0 0 3px rgba(217,119,6,0.12)'})}
               onBlur={e=>Object.assign(e.target.style,{borderColor:'#e2e8f0',boxShadow:'none'})}
@@ -139,7 +134,7 @@ window.OfficerLogin = function OfficerLogin({ navigateTo, onLoginSuccess }) {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter officer password"
+                placeholder="e.g:Enter Your Password"
                 style={{...inputStyle, paddingRight:44}}
                 onFocus={e=>Object.assign(e.target.style,{borderColor:'#d97706',boxShadow:'0 0 0 3px rgba(217,119,6,0.12)'})}
                 onBlur={e=>Object.assign(e.target.style,{borderColor:'#e2e8f0',boxShadow:'none'})}
@@ -159,31 +154,7 @@ window.OfficerLogin = function OfficerLogin({ navigateTo, onLoginSuccess }) {
             </div>
           </div>
 
-          {/* Demo Selector */}
-          <div style={{
-            background:'linear-gradient(135deg,#fffbeb,#fef3c7)',
-            border:'1.5px solid rgba(217,119,6,0.25)',
-            borderRadius:10, padding:'12px 14px'
-          }}>
-            <div style={{fontSize:11,fontWeight:700,color:'#92400e',marginBottom:8,letterSpacing:'.04em'}}>
-              🎯 QUICK DEMO CREDENTIALS
-            </div>
-            <button
-              type="button"
-              onClick={fillOfficerDemo}
-              style={{
-                width:'100%', background:'white', border:'1.5px solid rgba(217,119,6,0.3)',
-                borderRadius:8, padding:'8px 12px', cursor:'pointer',
-                display:'flex', itemsCenter:'center', justifyContent:'space-between',
-                transition:'all 0.2s'
-              }}
-              onMouseOver={e=>Object.assign(e.currentTarget.style,{background:'#fffbeb',borderColor:'#d97706'})}
-              onMouseOut={e=>Object.assign(e.currentTarget.style,{background:'white',borderColor:'rgba(217,119,6,0.3)'})}
-            >
-              <span style={{fontSize:12,fontWeight:700,color:'#92400e'}}>👮 Demo Officer (Rajesh Kumar)</span>
-              <span style={{fontSize:11,color:'#d97706',fontFamily:'monospace',fontWeight:700}}>9876543220</span>
-            </button>
-          </div>
+          
 
           <button
             type="submit"
