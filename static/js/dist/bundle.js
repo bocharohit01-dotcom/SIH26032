@@ -440,7 +440,7 @@ window.DEMO_DATA = {
     {
       id: 1,
       farmerId: "9876543210",
-      title: "🎟️ Slot Confirmed",
+      title: "Ticket Slot Confirmed",
       message: "Token TK-2026-104 confirmed for Bhimavaram APMC Yard.",
       timestamp: "10 mins ago",
       type: "SUCCESS",
@@ -449,7 +449,7 @@ window.DEMO_DATA = {
     {
       id: 2,
       farmerId: "9876543210",
-      title: "📢 Queue Alert",
+      title: "Alert Queue Alert",
       message: "Your turn is estimated in 15 minutes. Please proceed to Gate #1.",
       timestamp: "5 mins ago",
       type: "INFO",
@@ -2558,6 +2558,37 @@ window.FarmerDashboard = function FarmerDashboard({
   selectedLanguage,
   transliterateFarmerName
 }) {
+  const [currentLocation, setCurrentLocation] = React.useState(null);
+  const [locationError, setLocationError] = React.useState('');
+  React.useEffect(() => {
+    if (!navigator.geolocation) {
+      setLocationError('Location not supported');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(async position => {
+      const {
+        latitude,
+        longitude
+      } = position.coords;
+      try {
+        const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+        const data = await response.json();
+        const locationName = data.locality || data.city || data.principalSubdivision || 'Current Location';
+        setCurrentLocation(locationName);
+        setLocationError('');
+      } catch (error) {
+        setCurrentLocation('Current Location');
+        setLocationError('');
+      }
+    }, () => {
+      setLocationError('Location permission denied');
+    }, {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 60000
+    });
+  }, []);
+
   // All bookings the farmer can manage
   const [myBookings, setMyBookings] = React.useState((window.DEMO_DATA.sampleBookings || []).filter(b => b.farmerPhone === (user && user.phone ? user.phone : '9876543210')));
   const [cancelTarget, setCancelTarget] = React.useState(null); // booking to cancel
@@ -2955,7 +2986,7 @@ window.FarmerDashboard = function FarmerDashboard({
   }, t('welcome'), ",", transliterateFarmerName(user?.name || '', selectedLanguage), " \uD83D\uDC4B"), /*#__PURE__*/React.createElement("p", {
     style: {
       color: 'rgba(255,255,255,0.82)',
-      fontSize: 14,
+      fontSize: 13,
       margin: 0,
       display: 'flex',
       gap: 6,
@@ -2963,7 +2994,7 @@ window.FarmerDashboard = function FarmerDashboard({
     }
   }, /*#__PURE__*/React.createElement("i", {
     className: "fa-solid fa-location-dot"
-  }), user ? user.village : 'Papyal Village, Medak District')), /*#__PURE__*/React.createElement("div", {
+  }), currentLocation ? `Current Location: ${currentLocation}` : locationError ? locationError : 'Getting your current location...')), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       gap: 10,
@@ -3950,11 +3981,11 @@ window.SlotBooking = function SlotBooking({
     className: "bg-gradient-to-r from-emerald-800 to-teal-700 p-5 rounded-2xl border border-emerald-600 shadow-lg text-white flex items-center justify-between gap-4 flex-wrap"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "text-[11px] text-emerald-200 font-bold uppercase tracking-wider"
-  }, "\uD83D\uDCCD Selected Regional Mandi Yard"), /*#__PURE__*/React.createElement("div", {
+  }, "Selected Regional Mandi Yard"), /*#__PURE__*/React.createElement("div", {
     className: "text-xl font-black font-serif mt-0.5"
   }, selectedCentre.name), /*#__PURE__*/React.createElement("div", {
     className: "text-xs text-emerald-100 flex items-center gap-3 mt-1 flex-wrap font-medium"
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDFDB\uFE0F District: ", /*#__PURE__*/React.createElement("strong", null, selectedCentre.district)), /*#__PURE__*/React.createElement("span", null, "\u2022"), /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCCD ", /*#__PURE__*/React.createElement("strong", null, selectedCentre.distanceKm, " km"), " away"), /*#__PURE__*/React.createElement("span", null, "\u2022"), /*#__PURE__*/React.createElement("span", null, "\u23F1\uFE0F ", /*#__PURE__*/React.createElement("strong", null, (selectedCentre.activeQueueLength || 0) * (selectedCentre.avgProcessingMins || 10), " Mins"), " Wait"))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, "District: ", /*#__PURE__*/React.createElement("strong", null, selectedCentre.district)), /*#__PURE__*/React.createElement("span", null, "\u2022"), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("strong", null, selectedCentre.distanceKm, " km"), " away"), /*#__PURE__*/React.createElement("span", null, "\u2022"), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("strong", null, (selectedCentre.activeQueueLength || 0) * (selectedCentre.avgProcessingMins || 10), " Mins"), " Wait"))), /*#__PURE__*/React.createElement("div", {
     className: "w-12 h-12 rounded-2xl bg-white/20 backdrop-blur text-white flex items-center justify-center text-2xl border border-white/30 shadow"
   }, "\uD83C\uDF3E")), /*#__PURE__*/React.createElement("form", {
     onSubmit: handleSubmit,
@@ -3974,7 +4005,7 @@ window.SlotBooking = function SlotBooking({
   }, centresList.map(c => /*#__PURE__*/React.createElement("option", {
     key: c.id,
     value: c.id
-  }, "\uD83D\uDCCD ", c.name, " \u2014 ", c.district, " (", c.distanceKm, " km away)"))), /*#__PURE__*/React.createElement("p", {
+  }, c.name, " \u2014 ", c.district, " (", c.distanceKm, " km away)"))), /*#__PURE__*/React.createElement("p", {
     className: "text-[11px] text-emerald-700 mt-1 font-semibold"
   }, "Showing nearby centres sorted for your district.")), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 sm:grid-cols-2 gap-4"
@@ -4479,7 +4510,7 @@ window.OfficerLogin = function OfficerLogin({
       zIndex: 1,
       boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
     }
-  }, "\uD83D\uDC6E"), /*#__PURE__*/React.createElement("h2", {
+  }, "Officer"), /*#__PURE__*/React.createElement("h2", {
     style: {
       fontFamily: 'Outfit,sans-serif',
       fontWeight: 900,
@@ -5289,7 +5320,7 @@ window.AdminLogin = function AdminLogin({
 };
 
 /* --- static/js/pages/AdminDashboard.jsx --- */
-// Page 13: Admin Dashboard Component — Visual Demonstration Theme
+// Page 13: Admin Dashboard Component - Visual Demonstration Theme
 
 window.AdminDashboard = function AdminDashboard({
   navigateTo
@@ -5387,7 +5418,7 @@ window.AdminDashboard = function AdminDashboard({
     className: "text-xs text-slate-500 dark:text-slate-400 font-semibold"
   }, "Registered Farmers"), /*#__PURE__*/React.createElement("div", {
     className: "w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm border border-emerald-200 dark:border-emerald-800"
-  }, "\uD83D\uDC65")), /*#__PURE__*/React.createElement("div", {
+  }, "People")), /*#__PURE__*/React.createElement("div", {
     className: "text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-serif"
   }, (analytics.totalRegisteredFarmers || 0).toLocaleString('en-IN')), /*#__PURE__*/React.createElement("span", {
     className: "text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold"
@@ -5399,7 +5430,7 @@ window.AdminDashboard = function AdminDashboard({
     className: "text-xs text-slate-500 dark:text-slate-400 font-semibold"
   }, "Active Centres"), /*#__PURE__*/React.createElement("div", {
     className: "w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm border border-blue-200 dark:border-blue-800"
-  }, "\uD83C\uDFDB\uFE0F")), /*#__PURE__*/React.createElement("div", {
+  }, "Yard")), /*#__PURE__*/React.createElement("div", {
     className: "text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-serif"
   }, analytics.activeCentres, " Yards"), /*#__PURE__*/React.createElement("span", {
     className: "text-[10px] text-blue-600 dark:text-blue-400 font-semibold"
@@ -5411,7 +5442,7 @@ window.AdminDashboard = function AdminDashboard({
     className: "text-xs text-slate-500 dark:text-slate-400 font-semibold"
   }, "Procured Volume"), /*#__PURE__*/React.createElement("div", {
     className: "w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center text-sm border border-amber-200 dark:border-amber-800"
-  }, "\uD83C\uDF3E")), /*#__PURE__*/React.createElement("div", {
+  }, "Grain")), /*#__PURE__*/React.createElement("div", {
     className: "text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 font-serif"
   }, (analytics.totalProcuredQuintals || 0).toLocaleString('en-IN'), " Qtl"), /*#__PURE__*/React.createElement("span", {
     className: "text-[10px] text-amber-600 dark:text-amber-400 font-semibold"
@@ -5423,9 +5454,9 @@ window.AdminDashboard = function AdminDashboard({
     className: "text-xs text-slate-500 dark:text-slate-400 font-semibold"
   }, "Direct Bank Payouts"), /*#__PURE__*/React.createElement("div", {
     className: "w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400 flex items-center justify-center text-sm border border-teal-200 dark:border-teal-800"
-  }, "\uD83D\uDCB0")), /*#__PURE__*/React.createElement("div", {
+  }, "Payout")), /*#__PURE__*/React.createElement("div", {
     className: "text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 font-serif"
-  }, "\u20B9 ", analytics.totalPayoutDistributedCr, " Cr"), /*#__PURE__*/React.createElement("span", {
+  }, "INR ", analytics.totalPayoutDistributedCr, " Cr"), /*#__PURE__*/React.createElement("span", {
     className: "text-[10px] text-teal-600 dark:text-teal-400 font-semibold"
   }, "Direct DBT Transfers"))), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 lg:grid-cols-2 gap-6"
@@ -5655,7 +5686,7 @@ function App() {
       aboutKisanSeva: 'About KisanSeva',
       logout: 'Logout',
       welcome: 'Welcome',
-      activeFarmerPortal: 'Active Farmer Portal . Season 2026',
+      activeFarmerPortal: 'Active Farmer Portal Season 2026',
       bookProcurementSlot: 'Book Procurement Slot',
       findCentres: 'Find Centres',
       yourActiveProcurementToken: 'Your Active Procurement Token',
@@ -5725,7 +5756,7 @@ function App() {
       aboutKisanSeva: 'కిసాన్‌సేవ గురించి',
       logout: 'లాగ్ అవుట్',
       welcome: 'స్వాగతం',
-      activeFarmerPortal: 'యాక్టివ్ రైతు పోర్టల్ · సీజన్ 2026',
+      activeFarmerPortal: 'యాక్టివ్ రైతు పోర్టల్ సీజన్ 2026',
       bookProcurementSlot: 'కొనుగోలు స్లాట్ బుక్ చేయండి',
       findCentres: 'కేంద్రాలను కనుగొనండి',
       yourActiveProcurementToken: 'మీ యాక్టివ్ కొనుగోలు టోకెన్',
@@ -5794,7 +5825,7 @@ function App() {
       aboutKisanSeva: 'किसानसेवा के बारे में',
       logout: 'लॉग आउट',
       welcome: 'स्वागत है',
-      activeFarmerPortal: 'सक्रिय किसान पोर्टल · सीज़न 2026',
+      activeFarmerPortal: 'सक्रिय किसान पोर्टल सीज़न 2026',
       bookProcurementSlot: 'खरीद स्लॉट बुक करें',
       findCentres: 'केंद्र खोजें',
       yourActiveProcurementToken: 'आपका सक्रिय खरीद टोकन',
@@ -6283,7 +6314,7 @@ function App() {
         color: '#94a3b8',
         fontFamily: 'Inter,sans-serif'
       }
-    }, "\xA9 2026 KisanSeva \xB7 Intelligent Agricultural Procurement Platform \xB7 Department of Agriculture")));
+    }, "\xA9 2026 KisanSeva - Intelligent Agricultural Procurement Platform - Department of Agriculture")));
   }
 
   // ══════════════════════════════════════════════════════════

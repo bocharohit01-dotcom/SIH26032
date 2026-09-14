@@ -8,6 +8,37 @@ window.FarmerDashboard = function FarmerDashboard({
   selectedLanguage,
   transliterateFarmerName
 }) {
+  const [currentLocation, setCurrentLocation] = React.useState(null);
+  const [locationError, setLocationError] = React.useState('');
+  React.useEffect(() => {
+    if (!navigator.geolocation) {
+      setLocationError('Location not supported');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(async position => {
+      const {
+        latitude,
+        longitude
+      } = position.coords;
+      try {
+        const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+        const data = await response.json();
+        const locationName = data.locality || data.city || data.principalSubdivision || 'Current Location';
+        setCurrentLocation(locationName);
+        setLocationError('');
+      } catch (error) {
+        setCurrentLocation('Current Location');
+        setLocationError('');
+      }
+    }, () => {
+      setLocationError('Location permission denied');
+    }, {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 60000
+    });
+  }, []);
+
   // All bookings the farmer can manage
   const [myBookings, setMyBookings] = React.useState((window.DEMO_DATA.sampleBookings || []).filter(b => b.farmerPhone === (user && user.phone ? user.phone : '9876543210')));
   const [cancelTarget, setCancelTarget] = React.useState(null); // booking to cancel
@@ -405,7 +436,7 @@ window.FarmerDashboard = function FarmerDashboard({
   }, t('welcome'), ",", transliterateFarmerName(user?.name || '', selectedLanguage), " \uD83D\uDC4B"), /*#__PURE__*/React.createElement("p", {
     style: {
       color: 'rgba(255,255,255,0.82)',
-      fontSize: 14,
+      fontSize: 13,
       margin: 0,
       display: 'flex',
       gap: 6,
@@ -413,7 +444,7 @@ window.FarmerDashboard = function FarmerDashboard({
     }
   }, /*#__PURE__*/React.createElement("i", {
     className: "fa-solid fa-location-dot"
-  }), user ? user.village : 'Papyal Village, Medak District')), /*#__PURE__*/React.createElement("div", {
+  }), currentLocation ? `Current Location: ${currentLocation}` : locationError ? locationError : 'Getting your current location...')), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       gap: 10,

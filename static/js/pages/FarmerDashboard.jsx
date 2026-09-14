@@ -1,6 +1,48 @@
 // Page 4: Farmer Dashboard — Visual Demonstration Theme + Slot Cancellation
 
 window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBooking,t,selectedLanguage,transliterateFarmerName }) {
+  const [currentLocation, setCurrentLocation] = React.useState(null);
+const [locationError, setLocationError] = React.useState('');
+React.useEffect(() => {
+  if (!navigator.geolocation) {
+    setLocationError('Location not supported');
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const { latitude, longitude } = position.coords;
+
+      try {
+        const response = await fetch(
+          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+        );
+
+        const data = await response.json();
+
+        const locationName =
+          data.locality ||
+          data.city ||
+          data.principalSubdivision ||
+          'Current Location';
+
+        setCurrentLocation(locationName);
+        setLocationError('');
+      } catch (error) {
+        setCurrentLocation('Current Location');
+        setLocationError('');
+      }
+    },
+    () => {
+      setLocationError('Location permission denied');
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 60000
+    }
+  );
+}, []);
 
   // All bookings the farmer can manage
   const [myBookings, setMyBookings] = React.useState(
@@ -249,10 +291,14 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
               color:'white',margin:'0 0 6px'}}>
               {t('welcome')},{transliterateFarmerName(user?.name || '',selectedLanguage)} 👋
             </h1>
-            <p style={{color:'rgba(255,255,255,0.82)',fontSize:14,margin:0,display:'flex',gap:6,alignItems:'center'}}>
-              <i className="fa-solid fa-location-dot"></i>
-              {user ? user.village : 'Papyal Village, Medak District'}
-            </p>
+            <p style={{color:'rgba(255,255,255,0.82)',fontSize:13,margin:0,display:'flex',gap:6,alignItems:'center'}}>
+  <i className="fa-solid fa-location-dot"></i>
+  {currentLocation
+    ? `Current Location: ${currentLocation}`
+    : locationError
+      ? locationError
+      : 'Getting your current location...'}
+</p>
           </div>
 
           <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
