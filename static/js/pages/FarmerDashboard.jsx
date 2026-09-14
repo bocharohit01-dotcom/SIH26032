@@ -21,6 +21,18 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
     'Found better centre nearby',
     'Other'
   ];
+  const translateCancelReason = (reason) => {
+  const reasonKeys = {
+    'Crop not ready for delivery': 'reasonCropNotReady',
+    'Heavy rainfall / weather issue': 'reasonWeather',
+    'Transport vehicle unavailable': 'reasonTransport',
+    'Personal / family emergency': 'reasonEmergency',
+    'Found better centre nearby': 'reasonBetterCentre',
+    'Other': 'reasonOther'
+  };
+
+  return t(reasonKeys[reason] || reason);
+};
 
   const openCancelDialog = (booking) => {
     setCancelTarget(booking);
@@ -52,6 +64,18 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
   };
 
   const canCancel = (status) => ['BOOKED','CHECKED_IN'].includes(status);
+  const translateStatus = (status) => {
+  const statusKeys = {
+    BOOKED: 'statusBooked',
+    CHECKED_IN: 'statusCheckedIn',
+    QUALITY_CHECK: 'statusQualityCheck',
+    WEIGHED: 'statusWeighed',
+    COMPLETED: 'statusCompleted',
+    CANCELLED: 'statusCancelled'
+  };
+
+  return t(statusKeys[status] || status);
+};
 
   return (
     <div style={{paddingBottom:48, animation:'fadeIn 0.4s ease'}}>
@@ -153,7 +177,7 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
                     />
                     <span style={{fontSize:13,fontWeight:cancelReason===r ? 700 : 500,
                       color:cancelReason===r ? '#991b1b' : '#475569'}}>
-                      {r}
+                      {translateCancelReason(r)}
                     </span>
                   </label>
                 ))}
@@ -219,11 +243,11 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
             }}>
               <span style={{width:7,height:7,borderRadius:'50%',background:'#86efac',
                 display:'inline-block',boxShadow:'0 0 0 3px rgba(134,239,172,0.3)'}}></span>
-              Active Farmer Portal · Season 2026
+              {t('activeFarmerPortal')}
             </div>
             <h1 style={{fontFamily:'Outfit,sans-serif',fontWeight:900,fontSize:28,
               color:'white',margin:'0 0 6px'}}>
-              Welcome, {user ? user.name : 'Ramesh Patel'} 👋
+              {t('welcome')},{transliterateFarmerName(user?.name || '',selectedLanguage)} 👋
             </h1>
             <p style={{color:'rgba(255,255,255,0.82)',fontSize:14,margin:0,display:'flex',gap:6,alignItems:'center'}}>
               <i className="fa-solid fa-location-dot"></i>
@@ -245,7 +269,7 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
               onMouseOut={e=>Object.assign(e.currentTarget.style,{transform:'translateY(0)'})}
             >
               <i className="fa-solid fa-calendar-plus"></i>
-              Book Procurement Slot
+              {t('bookProcurementSlot')}
             </button>
             <button
               onClick={() => navigateTo('centreListing')}
@@ -259,8 +283,9 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
               onMouseOut={e=>Object.assign(e.currentTarget.style,{background:'rgba(255,255,255,0.18)'})}
             >
               <i className="fa-solid fa-compass"></i>
-              Find Centres
+              {t('findCentres')}
             </button>
+            
           </div>
         </div>
       </div>
@@ -272,7 +297,7 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
             <h3 style={{fontFamily:'Outfit,sans-serif',fontWeight:800,fontSize:18,
               color:'#0f172a',display:'flex',alignItems:'center',gap:8}}>
               <i className="fa-solid fa-ticket-simple" style={{color:'#f59e0b'}}></i>
-              Your Active Procurement Token
+              {t('yourActiveProcurementToken')}
             </h3>
             <span style={{
               fontSize:11,fontWeight:700,display:'flex',alignItems:'center',gap:5,
@@ -281,7 +306,7 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
             }}>
               <span style={{width:7,height:7,borderRadius:'50%',background:'#059669',
                 display:'inline-block',animation:'pulse 2s infinite'}}></span>
-              Live Status
+              {t('liveStatus')}
             </span>
           </div>
 
@@ -301,7 +326,7 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
               <div>
                 <div style={{fontSize:11,color:'#64748b',fontWeight:600,
                   textTransform:'uppercase',letterSpacing:'.06em',marginBottom:4}}>
-                  Token Number
+                  {t('tokenNumber')}
                 </div>
                 <div style={{fontFamily:'Outfit,sans-serif',fontWeight:900,fontSize:28,
                   color:'#f59e0b',letterSpacing:'.04em'}}>
@@ -313,9 +338,11 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
                   background:'white',border:'1px solid rgba(5,150,105,0.2)',
                   borderRadius:12,padding:'8px 14px',fontSize:12
                 }}>
-                  <div style={{color:'#94a3b8',fontWeight:600}}>Crop & Est. Weight</div>
+                  <div style={{color:'#94a3b8',fontWeight:600}}>
+                    {t('cropEstWeight')}
+                  </div>
                   <div style={{fontWeight:800,color:'#0f172a'}}>
-                    {activeSlot.cropType} · {activeSlot.estimatedQty} Qtl
+                    {activeSlot.cropType} · {activeSlot.estimatedQty}  {t('qtl')}
                   </div>
                 </div>
                 {/* Status badge */}
@@ -327,7 +354,7 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
                       padding:'5px 12px',borderRadius:99,display:'flex',alignItems:'center',gap:5
                     }}>
                       <i className={`fa-solid ${s.icon}`}></i>
-                      {activeSlot.status.replace('_',' ')}
+                      {translateStatus(activeSlot.status)}
                     </div>
                   );
                 })()}
@@ -340,10 +367,10 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
               gap:1,background:'#f1f5f9',padding:'0'
             }}>
               {[
-                {label:'Procurement Yard',val:activeSlot.centreName?.split(' ').slice(0,3).join(' ')+'…',icon:'fa-building'},
-                {label:'Time Window',val:activeSlot.timeWindow,icon:'fa-clock',col:'#059669'},
-                {label:'Farmers Ahead',val:activeSlot.tokensAhead+' Farmers',icon:'fa-users',col:'#f59e0b'},
-                {label:'Est. Wait',val:activeSlot.estWaitMins+' Mins',icon:'fa-hourglass-half',col:'#0d9488'},
+                {label:t('procurementYard'),val:activeSlot.centreName?.split(' ').slice(0,3).join(' ')+'…',icon:'fa-building'},
+                {label:t('timeWindow'),val:activeSlot.timeWindow,icon:'fa-clock',col:'#059669'},
+                {label:t('farmersAhead'),val:activeSlot.tokensAhead+' Farmers',icon:'fa-users',col:'#f59e0b'},
+                {label:t('estWait'),val:activeSlot.estWaitMins+' Mins',icon:'fa-hourglass-half',col:'#0d9488'},
               ].map((m,i)=>(
                 <div key={i} style={{background:'white',padding:'14px 18px',textAlign:'center'}}>
                   <i className={`fa-solid ${m.icon}`} style={{color:m.col||'#94a3b8',fontSize:14,marginBottom:6,display:'block'}}></i>
@@ -370,7 +397,7 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
                   onMouseOver={e=>Object.assign(e.currentTarget.style,{background:'#f8fafc',borderColor:'#059669',color:'#059669'})}
                   onMouseOut={e=>Object.assign(e.currentTarget.style,{background:'white',borderColor:'#e2e8f0',color:'#475569'})}
                 >
-                  <i className="fa-solid fa-qrcode" style={{color:'#059669'}}></i> View Digital Pass
+                  <i className="fa-solid fa-qrcode" style={{color:'#059669'}}></i> {t('viewDigitalPass')}
                 </button>
                 <button
                   onClick={() => navigateTo('liveQueue')}
@@ -384,7 +411,7 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
                   onMouseOver={e=>Object.assign(e.currentTarget.style,{transform:'translateY(-1px)'})}
                   onMouseOut={e=>Object.assign(e.currentTarget.style,{transform:'translateY(0)'})}
                 >
-                  <i className="fa-solid fa-stopwatch"></i> Track Live Queue
+                  <i className="fa-solid fa-stopwatch"></i> {t('trackLiveQueue')}
                 </button>
               </div>
 
@@ -401,7 +428,7 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
                   onMouseOver={e=>Object.assign(e.currentTarget.style,{background:'#fee2e2',borderColor:'#fca5a5'})}
                   onMouseOut={e=>Object.assign(e.currentTarget.style,{background:'#fef2f2',borderColor:'#fecaca'})}
                 >
-                  <i className="fa-solid fa-circle-xmark"></i> Cancel Slot
+                  <i className="fa-solid fa-circle-xmark"></i> {t('cancelSlot')}
                 </button>
               )}
             </div>
@@ -413,22 +440,22 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
       <div style={{marginBottom:28}}>
         <h3 style={{fontFamily:'Outfit,sans-serif',fontWeight:800,fontSize:18,
           color:'#0f172a',marginBottom:14}}>
-          Quick Farmer Services
+          {t('quickFarmerServices')}
         </h3>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:14}}>
           {[
             {page:'centreListing',icon:'fa-compass',emoji:'🗺️',
               bg:'linear-gradient(135deg,#d1fae5,#a7f3d0)',color:'#059669',shadow:'rgba(5,150,105,0.2)',
-              title:'Mandi Discovery', desc:'Find nearby yards sorted by shortest wait time.'},
+              title:t('mandiDiscovery'), desc:t('mandiDiscoveryDesc')},
             {page:'slotBooking',icon:'fa-calendar-check',emoji:'📅',
               bg:'linear-gradient(135deg,#ccfbf1,#99f6e4)',color:'#0d9488',shadow:'rgba(13,148,136,0.2)',
-              title:'Book Delivery Slot', desc:'Schedule date and 2-hour window for grain delivery.'},
+              title:t('bookDeliverySlot'), desc:t('bookDeliverySlotDesc')},
             {page:'liveQueue',icon:'fa-stopwatch',emoji:'📡',
               bg:'linear-gradient(135deg,#fef3c7,#fde68a)',color:'#d97706',shadow:'rgba(245,158,11,0.2)',
-              title:'Live Queue Tracker', desc:'Monitor currently serving token and turn alerts.'},
+              title:t('liveQueueTracker'), desc:t('liveQueueTrackerDesc')},
             {page:'procurementStatus',icon:'fa-receipt',emoji:'🏦',
               bg:'linear-gradient(135deg,#dbeafe,#bfdbfe)',color:'#2563eb',shadow:'rgba(59,130,246,0.2)',
-              title:'Payout & Receipts', desc:'View digital weighing slips and bank transfer history.'},
+              title:t('payoutReceipts'), desc:t('payoutReceiptsDesc')},
           ].map((c,i)=>(
             <div
               key={i}
@@ -458,7 +485,7 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
               <p style={{fontSize:12,color:'#64748b',margin:'0 0 12px',lineHeight:1.6}}>{c.desc}</p>
               <span style={{fontSize:12,fontWeight:700,color:c.color,
                 display:'flex',alignItems:'center',gap:4}}>
-                Open <i className="fa-solid fa-chevron-right" style={{fontSize:10}}></i>
+                {t('open')} <i className="fa-solid fa-chevron-right" style={{fontSize:10}}></i>
               </span>
             </div>
           ))}
@@ -470,7 +497,7 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
         <div>
           <h3 style={{fontFamily:'Outfit,sans-serif',fontWeight:800,fontSize:18,
             color:'#0f172a',marginBottom:14}}>
-            Booking History
+            {t('bookingHistory')}
           </h3>
           <div style={{display:'flex',flexDirection:'column',gap:10}}>
             {pastBookings.map(b => {
@@ -498,11 +525,11 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
                         {b.tokenNumber}
                       </div>
                       <div style={{fontSize:12,color:'#64748b'}}>
-                        {b.cropType} · {b.estimatedQty} Qtl · {b.slotDate}
+                        {b.cropType} · {b.estimatedQty} {t('qtl')} · {b.slotDate}
                       </div>
                       {b.cancelReason && (
                         <div style={{fontSize:11,color:'#ef4444',marginTop:2}}>
-                          <i className="fa-solid fa-circle-exclamation"></i> Reason: {b.cancelReason}
+                          <i className="fa-solid fa-circle-exclamation"></i> {t('reasonLabel')} {translateCancelReason(b.cancelReason)}
                         </div>
                       )}
                     </div>
@@ -510,7 +537,9 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
                   <div style={{display:'flex',alignItems:'center',gap:10}}>
                     {b.totalPayout && (
                       <div style={{textAlign:'right'}}>
-                        <div style={{fontSize:11,color:'#94a3b8',fontWeight:600}}>Payout</div>
+                        <div style={{fontSize:11,color:'#94a3b8',fontWeight:600}}>
+                          {t('payout')}
+                        </div>
                         <div style={{fontWeight:800,color:'#059669',fontSize:15}}>
                           ₹{b.totalPayout.toLocaleString('en-IN')}
                         </div>
@@ -520,7 +549,7 @@ window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBook
                       background:s.bg,color:s.color,fontSize:11,fontWeight:800,
                       padding:'4px 12px',borderRadius:99
                     }}>
-                      {b.status}
+                      {translateStatus(b.status)}
                     </span>
                   </div>
                 </div>

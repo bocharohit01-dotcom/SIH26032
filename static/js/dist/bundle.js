@@ -2562,6 +2562,17 @@ window.FarmerDashboard = function FarmerDashboard({
   const [showCancelModal, setShowCancelModal] = React.useState(false);
   const [cancelSuccess, setCancelSuccess] = React.useState(null);
   const cancelReasons = ['Crop not ready for delivery', 'Heavy rainfall / weather issue', 'Transport vehicle unavailable', 'Personal / family emergency', 'Found better centre nearby', 'Other'];
+  const translateCancelReason = reason => {
+    const reasonKeys = {
+      'Crop not ready for delivery': 'reasonCropNotReady',
+      'Heavy rainfall / weather issue': 'reasonWeather',
+      'Transport vehicle unavailable': 'reasonTransport',
+      'Personal / family emergency': 'reasonEmergency',
+      'Found better centre nearby': 'reasonBetterCentre',
+      'Other': 'reasonOther'
+    };
+    return t(reasonKeys[reason] || reason);
+  };
   const openCancelDialog = booking => {
     setCancelTarget(booking);
     setCancelReason('');
@@ -2614,6 +2625,17 @@ window.FarmerDashboard = function FarmerDashboard({
     }
   };
   const canCancel = status => ['BOOKED', 'CHECKED_IN'].includes(status);
+  const translateStatus = status => {
+    const statusKeys = {
+      BOOKED: 'statusBooked',
+      CHECKED_IN: 'statusCheckedIn',
+      QUALITY_CHECK: 'statusQualityCheck',
+      WEIGHED: 'statusWeighed',
+      COMPLETED: 'statusCompleted',
+      CANCELLED: 'statusCancelled'
+    };
+    return t(statusKeys[status] || status);
+  };
   return /*#__PURE__*/React.createElement("div", {
     style: {
       paddingBottom: 48,
@@ -2817,7 +2839,7 @@ window.FarmerDashboard = function FarmerDashboard({
       fontWeight: cancelReason === r ? 700 : 500,
       color: cancelReason === r ? '#991b1b' : '#475569'
     }
-  }, r))))), /*#__PURE__*/React.createElement("div", {
+  }, translateCancelReason(r)))))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       gap: 10
@@ -2919,7 +2941,7 @@ window.FarmerDashboard = function FarmerDashboard({
       display: 'inline-block',
       boxShadow: '0 0 0 3px rgba(134,239,172,0.3)'
     }
-  }), "Active Farmer Portal \xB7 Season 2026"), /*#__PURE__*/React.createElement("h1", {
+  }), t('activeFarmerPortal')), /*#__PURE__*/React.createElement("h1", {
     style: {
       fontFamily: 'Outfit,sans-serif',
       fontWeight: 900,
@@ -2927,7 +2949,7 @@ window.FarmerDashboard = function FarmerDashboard({
       color: 'white',
       margin: '0 0 6px'
     }
-  }, "Welcome, ", user ? user.name : 'Ramesh Patel', " \uD83D\uDC4B"), /*#__PURE__*/React.createElement("p", {
+  }, t('welcome'), ",", transliterateFarmerName(user?.name || '', selectedLanguage), " \uD83D\uDC4B"), /*#__PURE__*/React.createElement("p", {
     style: {
       color: 'rgba(255,255,255,0.82)',
       fontSize: 14,
@@ -2969,7 +2991,7 @@ window.FarmerDashboard = function FarmerDashboard({
     })
   }, /*#__PURE__*/React.createElement("i", {
     className: "fa-solid fa-calendar-plus"
-  }), "Book Procurement Slot"), /*#__PURE__*/React.createElement("button", {
+  }), t('bookProcurementSlot')), /*#__PURE__*/React.createElement("button", {
     onClick: () => navigateTo('centreListing'),
     style: {
       background: 'rgba(255,255,255,0.18)',
@@ -2993,7 +3015,7 @@ window.FarmerDashboard = function FarmerDashboard({
     })
   }, /*#__PURE__*/React.createElement("i", {
     className: "fa-solid fa-compass"
-  }), "Find Centres")))), activeSlot && /*#__PURE__*/React.createElement("div", {
+  }), t('findCentres'))))), activeSlot && /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 28
     }
@@ -3019,7 +3041,7 @@ window.FarmerDashboard = function FarmerDashboard({
     style: {
       color: '#f59e0b'
     }
-  }), "Your Active Procurement Token"), /*#__PURE__*/React.createElement("span", {
+  }), t('yourActiveProcurementToken')), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 11,
       fontWeight: 700,
@@ -3041,7 +3063,7 @@ window.FarmerDashboard = function FarmerDashboard({
       display: 'inline-block',
       animation: 'pulse 2s infinite'
     }
-  }), "Live Status")), /*#__PURE__*/React.createElement("div", {
+  }), t('liveStatus'))), /*#__PURE__*/React.createElement("div", {
     style: {
       background: 'white',
       borderRadius: 20,
@@ -3069,7 +3091,7 @@ window.FarmerDashboard = function FarmerDashboard({
       letterSpacing: '.06em',
       marginBottom: 4
     }
-  }, "Token Number"), /*#__PURE__*/React.createElement("div", {
+  }, t('tokenNumber')), /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: 'Outfit,sans-serif',
       fontWeight: 900,
@@ -3096,12 +3118,12 @@ window.FarmerDashboard = function FarmerDashboard({
       color: '#94a3b8',
       fontWeight: 600
     }
-  }, "Crop & Est. Weight"), /*#__PURE__*/React.createElement("div", {
+  }, t('cropEstWeight')), /*#__PURE__*/React.createElement("div", {
     style: {
       fontWeight: 800,
       color: '#0f172a'
     }
-  }, activeSlot.cropType, " \xB7 ", activeSlot.estimatedQty, " Qtl")), (() => {
+  }, activeSlot.cropType, " \xB7 ", activeSlot.estimatedQty, "  ", t('qtl'))), (() => {
     const s = statusColors[activeSlot.status] || {
       bg: '#f1f5f9',
       color: '#475569',
@@ -3121,7 +3143,7 @@ window.FarmerDashboard = function FarmerDashboard({
       }
     }, /*#__PURE__*/React.createElement("i", {
       className: `fa-solid ${s.icon}`
-    }), activeSlot.status.replace('_', ' '));
+    }), translateStatus(activeSlot.status));
   })())), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
@@ -3131,21 +3153,21 @@ window.FarmerDashboard = function FarmerDashboard({
       padding: '0'
     }
   }, [{
-    label: 'Procurement Yard',
+    label: t('procurementYard'),
     val: activeSlot.centreName?.split(' ').slice(0, 3).join(' ') + '…',
     icon: 'fa-building'
   }, {
-    label: 'Time Window',
+    label: t('timeWindow'),
     val: activeSlot.timeWindow,
     icon: 'fa-clock',
     col: '#059669'
   }, {
-    label: 'Farmers Ahead',
+    label: t('farmersAhead'),
     val: activeSlot.tokensAhead + ' Farmers',
     icon: 'fa-users',
     col: '#f59e0b'
   }, {
-    label: 'Est. Wait',
+    label: t('estWait'),
     val: activeSlot.estWaitMins + ' Mins',
     icon: 'fa-hourglass-half',
     col: '#0d9488'
@@ -3223,7 +3245,7 @@ window.FarmerDashboard = function FarmerDashboard({
     style: {
       color: '#059669'
     }
-  }), " View Digital Pass"), /*#__PURE__*/React.createElement("button", {
+  }), " ", t('viewDigitalPass')), /*#__PURE__*/React.createElement("button", {
     onClick: () => navigateTo('liveQueue'),
     style: {
       background: 'linear-gradient(135deg,#059669,#0d9488)',
@@ -3248,7 +3270,7 @@ window.FarmerDashboard = function FarmerDashboard({
     })
   }, /*#__PURE__*/React.createElement("i", {
     className: "fa-solid fa-stopwatch"
-  }), " Track Live Queue")), canCancel(activeSlot.status) && /*#__PURE__*/React.createElement("button", {
+  }), " ", t('trackLiveQueue'))), canCancel(activeSlot.status) && /*#__PURE__*/React.createElement("button", {
     onClick: () => openCancelDialog(activeSlot),
     style: {
       background: '#fef2f2',
@@ -3274,7 +3296,7 @@ window.FarmerDashboard = function FarmerDashboard({
     })
   }, /*#__PURE__*/React.createElement("i", {
     className: "fa-solid fa-circle-xmark"
-  }), " Cancel Slot")))), /*#__PURE__*/React.createElement("div", {
+  }), " ", t('cancelSlot'))))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 28
     }
@@ -3286,7 +3308,7 @@ window.FarmerDashboard = function FarmerDashboard({
       color: '#0f172a',
       marginBottom: 14
     }
-  }, "Quick Farmer Services"), /*#__PURE__*/React.createElement("div", {
+  }, t('quickFarmerServices')), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))',
@@ -3299,8 +3321,8 @@ window.FarmerDashboard = function FarmerDashboard({
     bg: 'linear-gradient(135deg,#d1fae5,#a7f3d0)',
     color: '#059669',
     shadow: 'rgba(5,150,105,0.2)',
-    title: 'Mandi Discovery',
-    desc: 'Find nearby yards sorted by shortest wait time.'
+    title: t('mandiDiscovery'),
+    desc: t('mandiDiscoveryDesc')
   }, {
     page: 'slotBooking',
     icon: 'fa-calendar-check',
@@ -3308,8 +3330,8 @@ window.FarmerDashboard = function FarmerDashboard({
     bg: 'linear-gradient(135deg,#ccfbf1,#99f6e4)',
     color: '#0d9488',
     shadow: 'rgba(13,148,136,0.2)',
-    title: 'Book Delivery Slot',
-    desc: 'Schedule date and 2-hour window for grain delivery.'
+    title: t('bookDeliverySlot'),
+    desc: t('bookDeliverySlotDesc')
   }, {
     page: 'liveQueue',
     icon: 'fa-stopwatch',
@@ -3317,8 +3339,8 @@ window.FarmerDashboard = function FarmerDashboard({
     bg: 'linear-gradient(135deg,#fef3c7,#fde68a)',
     color: '#d97706',
     shadow: 'rgba(245,158,11,0.2)',
-    title: 'Live Queue Tracker',
-    desc: 'Monitor currently serving token and turn alerts.'
+    title: t('liveQueueTracker'),
+    desc: t('liveQueueTrackerDesc')
   }, {
     page: 'procurementStatus',
     icon: 'fa-receipt',
@@ -3326,8 +3348,8 @@ window.FarmerDashboard = function FarmerDashboard({
     bg: 'linear-gradient(135deg,#dbeafe,#bfdbfe)',
     color: '#2563eb',
     shadow: 'rgba(59,130,246,0.2)',
-    title: 'Payout & Receipts',
-    desc: 'View digital weighing slips and bank transfer history.'
+    title: t('payoutReceipts'),
+    desc: t('payoutReceiptsDesc')
   }].map((c, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
     onClick: () => navigateTo(c.page),
@@ -3387,7 +3409,7 @@ window.FarmerDashboard = function FarmerDashboard({
       alignItems: 'center',
       gap: 4
     }
-  }, "Open ", /*#__PURE__*/React.createElement("i", {
+  }, t('open'), " ", /*#__PURE__*/React.createElement("i", {
     className: "fa-solid fa-chevron-right",
     style: {
       fontSize: 10
@@ -3400,7 +3422,7 @@ window.FarmerDashboard = function FarmerDashboard({
       color: '#0f172a',
       marginBottom: 14
     }
-  }, "Booking History"), /*#__PURE__*/React.createElement("div", {
+  }, t('bookingHistory')), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       flexDirection: 'column',
@@ -3459,7 +3481,7 @@ window.FarmerDashboard = function FarmerDashboard({
         fontSize: 12,
         color: '#64748b'
       }
-    }, b.cropType, " \xB7 ", b.estimatedQty, " Qtl \xB7 ", b.slotDate), b.cancelReason && /*#__PURE__*/React.createElement("div", {
+    }, b.cropType, " \xB7 ", b.estimatedQty, " ", t('qtl'), " \xB7 ", b.slotDate), b.cancelReason && /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
         color: '#ef4444',
@@ -3467,7 +3489,7 @@ window.FarmerDashboard = function FarmerDashboard({
       }
     }, /*#__PURE__*/React.createElement("i", {
       className: "fa-solid fa-circle-exclamation"
-    }), " Reason: ", b.cancelReason))), /*#__PURE__*/React.createElement("div", {
+    }), " ", t('reasonLabel'), " ", translateCancelReason(b.cancelReason)))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: 'flex',
         alignItems: 'center',
@@ -3483,7 +3505,7 @@ window.FarmerDashboard = function FarmerDashboard({
         color: '#94a3b8',
         fontWeight: 600
       }
-    }, "Payout"), /*#__PURE__*/React.createElement("div", {
+    }, t('payout')), /*#__PURE__*/React.createElement("div", {
       style: {
         fontWeight: 800,
         color: '#059669',
@@ -3498,7 +3520,7 @@ window.FarmerDashboard = function FarmerDashboard({
         padding: '4px 12px',
         borderRadius: 99
       }
-    }, b.status)));
+    }, translateStatus(b.status))));
   }))));
 };
 
