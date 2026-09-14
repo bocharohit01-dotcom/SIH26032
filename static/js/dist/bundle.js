@@ -2553,7 +2553,10 @@ window.FarmerRegister = function FarmerRegister({
 window.FarmerDashboard = function FarmerDashboard({
   navigateTo,
   user,
-  activeBooking
+  activeBooking,
+  t,
+  selectLanguage,
+  transliterateFarmerName
 }) {
   // All bookings the farmer can manage
   const [myBookings, setMyBookings] = React.useState((window.DEMO_DATA.sampleBookings || []).filter(b => b.farmerPhone === (user && user.phone ? user.phone : '9876543210')));

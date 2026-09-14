@@ -1,6 +1,6 @@
 // Page 4: Farmer Dashboard — Visual Demonstration Theme + Slot Cancellation
 
-window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBooking }) {
+window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBooking,t,selectLanguage,transliterateFarmerName }) {
 
   // All bookings the farmer can manage
   const [myBookings, setMyBookings] = React.useState(
