@@ -22,23 +22,35 @@ window.FarmerDashboard = function FarmerDashboard({
       } = position.coords;
       try {
         const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+        if (!response.ok) {
+          throw new Error('Reverse geocoding failed');
+        }
         const data = await response.json();
         const locationName = data.locality || data.city || data.principalSubdivision || 'Current Location';
         setCurrentLocation(locationName);
         setLocationError('');
       } catch (error) {
-        setCurrentLocation('Current Location');
-        setLocationError('');
+        console.error('Location name error:', error);
+        setCurrentLocation(null);
+        setLocationError('Unable to get location name');
       }
-    }, () => {
-      setLocationError('Location permission denied');
+    }, error => {
+      console.error('Geolocation error:', error);
+      if (error.code === 1) {
+        setLocationError('Location permission denied');
+      } else if (error.code === 2) {
+        setLocationError('Unable to detect your location');
+      } else if (error.code === 3) {
+        setLocationError('Location request timed out');
+      } else {
+        setLocationError('Unable to get current location');
+      }
     }, {
-      enableHighAccuracy: true,
-      timeout: 10000,
+      enableHighAccuracy: false,
+      timeout: 20000,
       maximumAge: 60000
     });
   }, []);
-
   // All bookings the farmer can manage
   const [myBookings, setMyBookings] = React.useState((window.DEMO_DATA.sampleBookings || []).filter(b => b.farmerPhone === (user && user.phone ? user.phone : '9876543210')));
   const [cancelTarget, setCancelTarget] = React.useState(null); // booking to cancel

@@ -1,8 +1,10 @@
 // Page 4: Farmer Dashboard — Visual Demonstration Theme + Slot Cancellation
 
 window.FarmerDashboard = function FarmerDashboard({ navigateTo, user, activeBooking,t,selectedLanguage,transliterateFarmerName }) {
-  const [currentLocation, setCurrentLocation] = React.useState(null);
+  
+const [currentLocation, setCurrentLocation] = React.useState(null);
 const [locationError, setLocationError] = React.useState('');
+
 React.useEffect(() => {
   if (!navigator.geolocation) {
     setLocationError('Location not supported');
@@ -18,6 +20,10 @@ React.useEffect(() => {
           `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
         );
 
+        if (!response.ok) {
+          throw new Error('Reverse geocoding failed');
+        }
+
         const data = await response.json();
 
         const locationName =
@@ -29,21 +35,33 @@ React.useEffect(() => {
         setCurrentLocation(locationName);
         setLocationError('');
       } catch (error) {
-        setCurrentLocation('Current Location');
-        setLocationError('');
+        console.error('Location name error:', error);
+        setCurrentLocation(null);
+        setLocationError('Unable to get location name');
       }
     },
-    () => {
-      setLocationError('Location permission denied');
+
+    (error) => {
+      console.error('Geolocation error:', error);
+
+      if (error.code === 1) {
+        setLocationError('Location permission denied');
+      } else if (error.code === 2) {
+        setLocationError('Unable to detect your location');
+      } else if (error.code === 3) {
+        setLocationError('Location request timed out');
+      } else {
+        setLocationError('Unable to get current location');
+      }
     },
+
     {
-      enableHighAccuracy: true,
-      timeout: 10000,
+      enableHighAccuracy: false,
+      timeout: 20000,
       maximumAge: 60000
     }
   );
 }, []);
-
   // All bookings the farmer can manage
   const [myBookings, setMyBookings] = React.useState(
     (window.DEMO_DATA.sampleBookings || []).filter(b =>
