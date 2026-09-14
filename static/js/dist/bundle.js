@@ -5504,6 +5504,111 @@ function App() {
 
   // ── NOTIFICATIONS ─────────────────────────────────────────
   const [notifications, setNotifications] = React.useState(window.DEMO_DATA && window.DEMO_DATA.notifications || []);
+  const transliterateFarmerName = (name, language) => {
+    if (!name) return '';
+
+    // English → same name
+    if (language === 'English') {
+      return name;
+    }
+    const teluguMap = {
+      a: 'అ',
+      aa: 'ఆ',
+      i: 'ఇ',
+      ee: 'ఈ',
+      u: 'ఉ',
+      oo: 'ఊ',
+      e: 'ఎ',
+      ai: 'ఐ',
+      o: 'ఒ',
+      au: 'ఔ',
+      ka: 'క',
+      kha: 'ఖ',
+      ga: 'గ',
+      gha: 'ఘ',
+      nga: 'ఙ',
+      cha: 'చ',
+      chha: 'ఛ',
+      ja: 'జ',
+      jha: 'ఝ',
+      nya: 'ఞ',
+      ta: 'ట',
+      tha: 'ఠ',
+      da: 'డ',
+      dha: 'ఢ',
+      na: 'ణ',
+      tha2: 'త',
+      dha2: 'ద',
+      n2: 'న',
+      pa: 'ప',
+      pha: 'ఫ',
+      ba: 'బ',
+      bha: 'భ',
+      ma: 'మ',
+      ya: 'య',
+      ra: 'ర',
+      la: 'ల',
+      va: 'వ',
+      sha: 'శ',
+      sh: 'ష',
+      sa: 'స',
+      ha: 'హ'
+    };
+    const hindiMap = {
+      a: 'अ',
+      aa: 'आ',
+      i: 'इ',
+      ee: 'ई',
+      u: 'उ',
+      oo: 'ऊ',
+      e: 'ए',
+      ai: 'ऐ',
+      o: 'ओ',
+      au: 'औ',
+      ka: 'क',
+      kha: 'ख',
+      ga: 'ग',
+      gha: 'घ',
+      nga: 'ङ',
+      cha: 'च',
+      chha: 'छ',
+      ja: 'ज',
+      jha: 'झ',
+      nya: 'ञ',
+      ta: 'ट',
+      tha: 'ठ',
+      da: 'ड',
+      dha: 'ढ',
+      na: 'ण',
+      tha2: 'त',
+      dha2: 'द',
+      n2: 'न',
+      pa: 'प',
+      pha: 'फ',
+      ba: 'ब',
+      bha: 'भ',
+      ma: 'म',
+      ya: 'य',
+      ra: 'र',
+      la: 'ल',
+      va: 'व',
+      sha: 'श',
+      sh: 'ष',
+      sa: 'स',
+      ha: 'ह'
+    };
+
+    // Temporary local transliteration engine
+    const map = language === 'Telugu' ? teluguMap : hindiMap;
+    return name.split(' ').map(word => {
+      let result = word.toLowerCase();
+      const keys = Object.keys(map).sort((a, b) => b.length - a.length);
+      keys.forEach(key => {
+        result = result.split(key).join(map[key]);
+      });
+      return result;
+    }).join(' ');
+  };
   const [selectedLanguage, setSelectedLanguage] = React.useState('English');
   const translations = {
     English: {
@@ -5523,7 +5628,35 @@ function App() {
       queuePreferences: 'Queue Preferences',
       helpSupport: 'Help & Support',
       aboutKisanSeva: 'About KisanSeva',
-      logout: 'Logout'
+      logout: 'Logout',
+      welcome: 'Welcome',
+      activeFarmerPortal: 'Active Farmer Portal . Season 2026',
+      bookProcurementSlot: 'Book Procurement Slot',
+      findCentres: 'Find Centres',
+      yourActiveProcurementToken: 'Your Active Procurement Token',
+      liveStatus: 'Live Status',
+      tokenNumber: 'Token Number',
+      cropEstWeight: 'Crop & Est. Weight',
+      procurementYard: 'Procurement Yard',
+      timeWindow: 'Time Window',
+      farmersAhead: 'Farmers Ahead',
+      estWait: 'Est. Wait',
+      viewDigitalPass: 'View Digital Pass',
+      trackLiveQueue: 'Track Live Queue',
+      cancelSlot: 'Cancel Slot',
+      quickFarmerServices: 'Quick Farmer Services',
+      open: 'Open',
+      slotCancelled: 'Slot Cancelled',
+      cancelSlotBooking: 'Cancel Slot Booking?',
+      centre: 'Centre',
+      crop: 'Crop',
+      date: 'Date',
+      estQty: 'Est. Qty',
+      reasonForCancellation: 'Reason for Cancellation',
+      keepSlot: 'Keep Slot',
+      confirmCancel: 'Confirm Cancel',
+      cancellationWarning: 'Cancellations within 2 hours of slot time may affect future booking priority.',
+      farmerName: ''
     },
     Telugu: {
       dashboard: 'డాష్‌బోర్డ్',
@@ -5542,7 +5675,34 @@ function App() {
       queuePreferences: 'క్యూ ప్రాధాన్యతలు',
       helpSupport: 'సహాయం & మద్దతు',
       aboutKisanSeva: 'కిసాన్‌సేవ గురించి',
-      logout: 'లాగ్ అవుట్'
+      logout: 'లాగ్ అవుట్',
+      welcome: 'స్వాగతం',
+      activeFarmerPortal: 'యాక్టివ్ రైతు పోర్టల్ · సీజన్ 2026',
+      bookProcurementSlot: 'కొనుగోలు స్లాట్ బుక్ చేయండి',
+      findCentres: 'కేంద్రాలను కనుగొనండి',
+      yourActiveProcurementToken: 'మీ యాక్టివ్ కొనుగోలు టోకెన్',
+      liveStatus: 'లైవ్ స్థితి',
+      tokenNumber: 'టోకెన్ నంబర్',
+      cropEstWeight: 'పంట & అంచనా బరువు',
+      procurementYard: 'కొనుగోలు కేంద్రం',
+      timeWindow: 'సమయ పరిధి',
+      farmersAhead: 'మీ ముందు ఉన్న రైతులు',
+      estWait: 'అంచనా వేచి ఉండే సమయం',
+      viewDigitalPass: 'డిజిటల్ పాస్ చూడండి',
+      trackLiveQueue: 'లైవ్ క్యూ చూడండి',
+      cancelSlot: 'స్లాట్ రద్దు చేయండి',
+      quickFarmerServices: 'రైతుల త్వరిత సేవలు',
+      open: 'తెరవండి',
+      slotCancelled: 'స్లాట్ రద్దు చేయబడింది',
+      cancelSlotBooking: 'స్లాట్ బుకింగ్ రద్దు చేయాలా?',
+      centre: 'కేంద్రం',
+      crop: 'పంట',
+      date: 'తేదీ',
+      estQty: 'అంచనా పరిమాణం',
+      reasonForCancellation: 'రద్దు చేయడానికి కారణం',
+      keepSlot: 'స్లాట్ కొనసాగించండి',
+      confirmCancel: 'రద్దును నిర్ధారించండి',
+      cancellationWarning: 'స్లాట్ సమయానికి 2 గంటలలోపు రద్దు చేస్తే భవిష్యత్ బుకింగ్ ప్రాధాన్యతపై ప్రభావం పడవచ్చు.'
     },
     Hindi: {
       dashboard: 'डैशबोर्ड',
@@ -5561,7 +5721,34 @@ function App() {
       queuePreferences: 'कतार प्राथमिकताएँ',
       helpSupport: 'सहायता और समर्थन',
       aboutKisanSeva: 'किसानसेवा के बारे में',
-      logout: 'लॉग आउट'
+      logout: 'लॉग आउट',
+      welcome: 'स्वागत है',
+      activeFarmerPortal: 'सक्रिय किसान पोर्टल · सीज़न 2026',
+      bookProcurementSlot: 'खरीद स्लॉट बुक करें',
+      findCentres: 'केंद्र खोजें',
+      yourActiveProcurementToken: 'आपका सक्रिय खरीद टोकन',
+      liveStatus: 'लाइव स्थिति',
+      tokenNumber: 'टोकन नंबर',
+      cropEstWeight: 'फसल और अनुमानित वजन',
+      procurementYard: 'खरीद केंद्र',
+      timeWindow: 'समय सीमा',
+      farmersAhead: 'आपसे आगे किसान',
+      estWait: 'अनुमानित प्रतीक्षा',
+      viewDigitalPass: 'डिजिटल पास देखें',
+      trackLiveQueue: 'लाइव कतार देखें',
+      cancelSlot: 'स्लॉट रद्द करें',
+      quickFarmerServices: 'किसानों के लिए त्वरित सेवाएँ',
+      open: 'खोलें',
+      slotCancelled: 'स्लॉट रद्द कर दिया गया',
+      cancelSlotBooking: 'स्लॉट बुकिंग रद्द करें?',
+      centre: 'केंद्र',
+      crop: 'फसल',
+      date: 'तारीख',
+      estQty: 'अनुमानित मात्रा',
+      reasonForCancellation: 'रद्द करने का कारण',
+      keepSlot: 'स्लॉट रखें',
+      confirmCancel: 'रद्दीकरण की पुष्टि करें',
+      cancellationWarning: 'स्लॉट समय से 2 घंटे के भीतर रद्द करने से भविष्य की बुकिंग प्राथमिकता प्रभावित हो सकती है।'
     }
   };
   const t = key => translations[selectedLanguage][key] || key;
@@ -6054,7 +6241,10 @@ function App() {
   }), currentPage === 'farmerDash' && /*#__PURE__*/React.createElement(window.FarmerDashboard, {
     navigateTo: navigateTo,
     user: user,
-    activeBooking: activeBooking
+    activeBooking: activeBooking,
+    t: t,
+    selectedLanguage: selectedLanguage,
+    transliterateFarmerName: transliterateFarmerName
   }), currentPage === 'centreListing' && /*#__PURE__*/React.createElement(window.CentreListing, {
     navigateTo: navigateTo,
     centres: centres,
