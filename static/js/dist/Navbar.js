@@ -8,9 +8,13 @@ window.Navbar = function Navbar({
   setUserRole,
   unreadNotifCount,
   toggleNotifDrawer,
-  onLogout
+  onLogout,
+  selectedLanguage,
+  setSelectedLanguage,
+  t
 }) {
   const [showSettings, setShowSettings] = React.useState(false);
+  const [showLanguages, setShowLanguages] = React.useState(false);
   return /*#__PURE__*/React.createElement("header", {
     style: {
       position: 'sticky',
@@ -77,7 +81,7 @@ window.Navbar = function Navbar({
     className: "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 hover:bg-white"
   }, /*#__PURE__*/React.createElement("i", {
     className: "fa-solid fa-house"
-  }), /*#__PURE__*/React.createElement("span", null, "Dashboard")), /*#__PURE__*/React.createElement("button", {
+  }), /*#__PURE__*/React.createElement("span", null, t('dashboard'))), /*#__PURE__*/React.createElement("button", {
     onClick: () => navigateTo('centreListing'),
     style: ['centreListing', 'centreDetails'].includes(currentPage) ? {
       background: 'linear-gradient(135deg,#059669,#0d9488)',
@@ -89,7 +93,7 @@ window.Navbar = function Navbar({
     className: "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 hover:bg-white"
   }, /*#__PURE__*/React.createElement("i", {
     className: "fa-solid fa-compass"
-  }), /*#__PURE__*/React.createElement("span", null, "Mandi Discovery")), /*#__PURE__*/React.createElement("button", {
+  }), /*#__PURE__*/React.createElement("span", null, t('mandiDiscovery'))), /*#__PURE__*/React.createElement("button", {
     onClick: () => navigateTo('slotBooking'),
     style: ['slotBooking', 'bookingConfirmation'].includes(currentPage) ? {
       background: 'linear-gradient(135deg,#059669,#0d9488)',
@@ -101,7 +105,7 @@ window.Navbar = function Navbar({
     className: "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 hover:bg-white"
   }, /*#__PURE__*/React.createElement("i", {
     className: "fa-solid fa-calendar-plus"
-  }), /*#__PURE__*/React.createElement("span", null, "Book Slot")), /*#__PURE__*/React.createElement("button", {
+  }), /*#__PURE__*/React.createElement("span", null, t('bookSlot'))), /*#__PURE__*/React.createElement("button", {
     onClick: () => navigateTo('liveQueue'),
     style: currentPage === 'liveQueue' ? {
       background: 'linear-gradient(135deg,#059669,#0d9488)',
@@ -113,7 +117,7 @@ window.Navbar = function Navbar({
     className: "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 hover:bg-white"
   }, /*#__PURE__*/React.createElement("i", {
     className: "fa-solid fa-stopwatch"
-  }), /*#__PURE__*/React.createElement("span", null, "Live Queue")), /*#__PURE__*/React.createElement("button", {
+  }), /*#__PURE__*/React.createElement("span", null, t('liveQueue'))), /*#__PURE__*/React.createElement("button", {
     onClick: () => navigateTo('procurementStatus'),
     style: currentPage === 'procurementStatus' ? {
       background: 'linear-gradient(135deg,#059669,#0d9488)',
@@ -125,7 +129,7 @@ window.Navbar = function Navbar({
     className: "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 hover:bg-white"
   }, /*#__PURE__*/React.createElement("i", {
     className: "fa-solid fa-receipt"
-  }), /*#__PURE__*/React.createElement("span", null, "Payout & Receipts"))), userRole === 'OFFICER' && /*#__PURE__*/React.createElement("button", {
+  }), /*#__PURE__*/React.createElement("span", null, t('payoutReceipts')))), userRole === 'OFFICER' && /*#__PURE__*/React.createElement("button", {
     onClick: () => navigateTo('officerDash'),
     style: currentPage === 'officerDash' ? {
       background: 'linear-gradient(135deg,#f59e0b,#d97706)',
@@ -137,7 +141,7 @@ window.Navbar = function Navbar({
     className: "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 hover:bg-white"
   }, /*#__PURE__*/React.createElement("i", {
     className: "fa-solid fa-clipboard-check"
-  }), /*#__PURE__*/React.createElement("span", null, "Mandi Inspector Console")), userRole === 'ADMIN' && /*#__PURE__*/React.createElement("button", {
+  }), /*#__PURE__*/React.createElement("span", null, t('officerConsole'))), userRole === 'ADMIN' && /*#__PURE__*/React.createElement("button", {
     onClick: () => navigateTo('adminDash'),
     style: currentPage === 'adminDash' ? {
       background: 'linear-gradient(135deg,#3b82f6,#6366f1)',
@@ -149,10 +153,10 @@ window.Navbar = function Navbar({
     className: "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 hover:bg-white"
   }, /*#__PURE__*/React.createElement("i", {
     className: "fa-solid fa-chart-pie"
-  }), /*#__PURE__*/React.createElement("span", null, "State Admin Analytics")), !userRole && /*#__PURE__*/React.createElement("button", {
+  }), /*#__PURE__*/React.createElement("span", null, t('adminDash'))), !userRole && /*#__PURE__*/React.createElement("button", {
     onClick: () => navigateTo('landing'),
     className: "px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-white"
-  }, /*#__PURE__*/React.createElement("span", null, "Home"))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, t('dashboard')))), /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-2.5",
     style: {
       position: 'relative'
@@ -181,7 +185,7 @@ window.Navbar = function Navbar({
       fontSize: 9,
       fontWeight: 900,
       display: 'flex',
-      itemsCenter: 'center',
+      alignItems: 'center',
       justifyContent: 'center',
       boxShadow: '0 2px 6px rgba(244,63,94,0.5)',
       border: '2px solid white'
@@ -216,7 +220,7 @@ window.Navbar = function Navbar({
       fontWeight: 800,
       textTransform: 'uppercase'
     }
-  }, userRole)), /*#__PURE__*/React.createElement("button", {
+  }, userRole)), (userRole === 'FARMER' || userRole === 'OFFICER') && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
     onClick: () => setShowSettings(!showSettings),
     title: "Settings",
     style: {
@@ -237,7 +241,7 @@ window.Navbar = function Navbar({
     className: "fa-solid fa-gear"
   }), /*#__PURE__*/React.createElement("span", {
     className: "hidden sm:inline"
-  }, "Settings")), showSettings && (userRole === 'FARMER' || userRole === 'OFFICER') && /*#__PURE__*/React.createElement("div", {
+  }, t('settings'))), showSettings && /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'absolute',
       top: 62,
@@ -259,25 +263,48 @@ window.Navbar = function Navbar({
       borderBottom: '1px solid #e2e8f0',
       marginBottom: 4
     }
-  }, "\u2699\uFE0F Settings"), /*#__PURE__*/React.createElement("button", {
+  }, "\u2699\uFE0F ", t('settings')), /*#__PURE__*/React.createElement("button", {
     className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
-  }, "\uD83D\uDC64 Profile"), /*#__PURE__*/React.createElement("button", {
+  }, "\uD83D\uDC64 ", t('profile')), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowLanguages(!showLanguages),
     className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
-  }, "\uD83C\uDF10 Language"), userRole === 'FARMER' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+  }, "\uD83C\uDF10 ", selectedLanguage), showLanguages && /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '8px 12px'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setSelectedLanguage('English');
+      setShowLanguages(false);
+    },
+    className: `block w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50 ${selectedLanguage === 'English' ? 'bg-emerald-100 text-emerald-800' : ''}`
+  }, "\uD83C\uDDEC\uD83C\uDDE7 English"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setSelectedLanguage('Hindi');
+      setShowLanguages(false);
+    },
+    className: `block w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50 ${selectedLanguage === 'Hindi' ? 'bg-emerald-100 text-emerald-800' : ''}`
+  }, "\uD83C\uDDEE\uD83C\uDDF3 Hindi"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setSelectedLanguage('Telugu');
+      setShowLanguages(false);
+    },
+    className: `block w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50 ${selectedLanguage === 'Telugu' ? 'bg-emerald-100 text-emerald-800' : ''}`
+  }, "\uD83C\uDDEE\uD83C\uDDF3 \u0C24\u0C46\u0C32\u0C41\u0C17\u0C41")), userRole === 'FARMER' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
     className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
-  }, "\uD83D\uDCCD Preferred Procurement Centre"), /*#__PURE__*/React.createElement("button", {
+  }, "\uD83D\uDCCD ", t('preferredCentre')), /*#__PURE__*/React.createElement("button", {
     className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
-  }, "\uD83D\uDCCB Booking History")), userRole === 'OFFICER' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+  }, "\uD83D\uDCCB ", t('bookingHistory'))), userRole === 'OFFICER' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
     className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
-  }, "\uD83C\uDFE2 Assigned Mandi"), /*#__PURE__*/React.createElement("button", {
+  }, "\uD83C\uDFE2 ", t('assignedMandi')), /*#__PURE__*/React.createElement("button", {
     className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
-  }, "\uD83D\uDCCA Work Summary"), /*#__PURE__*/React.createElement("button", {
+  }, "\uD83D\uDCCA ", t('workSummary')), /*#__PURE__*/React.createElement("button", {
     className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
-  }, "\u2699\uFE0F Queue Preferences")), /*#__PURE__*/React.createElement("button", {
+  }, "\u2699\uFE0F ", t('queuePreferences'))), /*#__PURE__*/React.createElement("button", {
     className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
-  }, "\u2753 Help & Support"), /*#__PURE__*/React.createElement("button", {
+  }, "\u2753 ", t('helpSupport')), /*#__PURE__*/React.createElement("button", {
     className: "w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
-  }, "\u2139\uFE0F About KisanSeva"), /*#__PURE__*/React.createElement("div", {
+  }, "\u2139\uFE0F ", t('aboutKisanSeva')), /*#__PURE__*/React.createElement("div", {
     style: {
       height: 1,
       background: '#e2e8f0',
@@ -292,5 +319,15 @@ window.Navbar = function Navbar({
     style: {
       color: '#dc2626'
     }
-  }, "\uD83D\uDEAA Logout"))) : null))));
+  }, "\uD83D\uDEAA ", t('logout')))), userRole === 'ADMIN' && /*#__PURE__*/React.createElement("button", {
+    onClick: onLogout,
+    title: "Logout",
+    className: "px-3 py-2 rounded-xl text-xs font-bold transition hover:bg-red-50",
+    style: {
+      background: '#fff',
+      border: '1px solid #fecaca',
+      color: '#dc2626',
+      cursor: 'pointer'
+    }
+  }, "\uD83D\uDEAA ", t('logout'))) : null))));
 };

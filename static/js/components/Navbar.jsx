@@ -1,7 +1,9 @@
 // Reusable Navbar Component — Visual Demonstration Theme
 
-window.Navbar = function Navbar({ currentPage, navigateTo, userRole, user, setUserRole, unreadNotifCount, toggleNotifDrawer, onLogout }) {
+window.Navbar = function Navbar({ currentPage, navigateTo, userRole, user, setUserRole, unreadNotifCount, toggleNotifDrawer, onLogout,selectedLanguage,setSelectedLanguage,t}) {
   const [showSettings, setShowSettings] = React.useState(false);
+  const [showLanguages, setShowLanguages] = React.useState(false);
+  
   return (
     <header style={{
       position:'sticky', top:0, zIndex:40,
@@ -56,7 +58,7 @@ window.Navbar = function Navbar({ currentPage, navigateTo, userRole, user, setUs
                   className="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 hover:bg-white"
                 >
                   <i className="fa-solid fa-house"></i>
-                  <span>Dashboard</span>
+                  <span>{t('dashboard')}</span>
                 </button>
 
                 <button
@@ -68,7 +70,7 @@ window.Navbar = function Navbar({ currentPage, navigateTo, userRole, user, setUs
                   className="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 hover:bg-white"
                 >
                   <i className="fa-solid fa-compass"></i>
-                  <span>Mandi Discovery</span>
+                  <span>{t('mandiDiscovery')}</span>
                 </button>
 
                 <button
@@ -80,7 +82,7 @@ window.Navbar = function Navbar({ currentPage, navigateTo, userRole, user, setUs
                   className="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 hover:bg-white"
                 >
                   <i className="fa-solid fa-calendar-plus"></i>
-                  <span>Book Slot</span>
+                  <span>{t('bookSlot')}</span>
                 </button>
 
                 <button
@@ -92,7 +94,7 @@ window.Navbar = function Navbar({ currentPage, navigateTo, userRole, user, setUs
                   className="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 hover:bg-white"
                 >
                   <i className="fa-solid fa-stopwatch"></i>
-                  <span>Live Queue</span>
+                  <span>{t('liveQueue')}</span>
                 </button>
 
                 <button
@@ -104,7 +106,7 @@ window.Navbar = function Navbar({ currentPage, navigateTo, userRole, user, setUs
                   className="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 hover:bg-white"
                 >
                   <i className="fa-solid fa-receipt"></i>
-                  <span>Payout & Receipts</span>
+                  <span>{t('payoutReceipts')}</span>
                 </button>
               </>
             )}
@@ -120,7 +122,7 @@ window.Navbar = function Navbar({ currentPage, navigateTo, userRole, user, setUs
                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 hover:bg-white"
               >
                 <i className="fa-solid fa-clipboard-check"></i>
-                <span>Mandi Inspector Console</span>
+                <span>{t('officerConsole')}</span>
               </button>
             )}
 
@@ -135,7 +137,7 @@ window.Navbar = function Navbar({ currentPage, navigateTo, userRole, user, setUs
                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 hover:bg-white"
               >
                 <i className="fa-solid fa-chart-pie"></i>
-                <span>State Admin Analytics</span>
+                <span>{t('adminDash')}</span>
               </button>
             )}
 
@@ -145,7 +147,7 @@ window.Navbar = function Navbar({ currentPage, navigateTo, userRole, user, setUs
                 onClick={() => navigateTo('landing')}
                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-white"
               >
-                <span>Home</span>
+                <span>{t('dashboard')}</span>
               </button>
             )}
           </nav>
@@ -168,7 +170,7 @@ window.Navbar = function Navbar({ currentPage, navigateTo, userRole, user, setUs
                   width:18, height:18, borderRadius:'50%',
                   background:'linear-gradient(135deg,#f43f5e,#e11d48)',
                   color:'white', fontSize:9, fontWeight:900,
-                  display:'flex', itemsCenter:'center', justifyContent:'center',
+                  display:'flex', alignItems:'center', justifyContent:'center',
                   boxShadow:'0 2px 6px rgba(244,63,94,0.5)',
                   border:'2px solid white'
                 }}>
@@ -196,117 +198,190 @@ window.Navbar = function Navbar({ currentPage, navigateTo, userRole, user, setUs
                   </span>
                 </div>
 
-                {/* Settings Button */}
-<button
-  onClick={() => setShowSettings(!showSettings)}
-  title="Settings"
-  style={{
-    background:'#f8fafc',
-    border:'1px solid #cbd5e1',
-    color:'#475569',
-    fontSize:12,
-    fontWeight:700,
-    padding:'7px 12px',
-    borderRadius:10,
-    cursor:'pointer',
-    display:'flex',
-    alignItems:'center',
-    gap:5,
-    transition:'all 0.2s'
-  }}
->
-  <i className="fa-solid fa-gear"></i>
-  <span className="hidden sm:inline">Settings</span>
-</button>
-{showSettings && (userRole === 'FARMER' || userRole === 'OFFICER') && (
-  <div style={{
-    position:'absolute',
-    top:62,
-    right:80,
-    width:240,
-    background:'white',
-    border:'1px solid rgba(5,150,105,0.18)',
-    borderRadius:16,
-    boxShadow:'0 12px 35px rgba(15,23,42,0.15)',
-    padding:8,
-    zIndex:100
-  }}>
-
-    <div style={{
-      padding:'10px 12px',
-      fontSize:12,
-      fontWeight:800,
-      color:'#64748b',
-      borderBottom:'1px solid #e2e8f0',
-      marginBottom:4
-    }}>
-      ⚙️ Settings
-    </div>
-
-    <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
-      👤 Profile
-    </button>
-
-    <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
-      🌐 Language
-    </button>
-
-    
-
-    {userRole === 'FARMER' && (
-      <>
-        <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
-          📍 Preferred Procurement Centre
-        </button>
-
-        <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
-          📋 Booking History
-        </button>
-      </>
-    )}
-
-    {userRole === 'OFFICER' && (
-      <>
-        <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
-          🏢 Assigned Mandi
-        </button>
-
-        <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
-          📊 Work Summary
-        </button>
-
-        <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
-          ⚙️ Queue Preferences
-        </button>
-      </>
-    )}
-
-    <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
-      ❓ Help & Support
-    </button>
-
-    <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
-      ℹ️ About KisanSeva
-    </button>
-
-    <div style={{
-      height:1,
-      background:'#e2e8f0',
-      margin:'6px 4px'
-    }}></div>
-
+                {(userRole === 'FARMER' || userRole === 'OFFICER') && (
+  <>
+    {/* Settings Button */}
     <button
-      onClick={() => {
-        setShowSettings(false);
-        onLogout();
+      onClick={() => setShowSettings(!showSettings)}
+      title="Settings"
+      style={{
+        background:'#f8fafc',
+        border:'1px solid #cbd5e1',
+        color:'#475569',
+        fontSize:12,
+        fontWeight:700,
+        padding:'7px 12px',
+        borderRadius:10,
+        cursor:'pointer',
+        display:'flex',
+        alignItems:'center',
+        gap:5,
+        transition:'all 0.2s'
       }}
-      className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-red-50"
-      style={{color:'#dc2626'}}
     >
-      🚪 Logout
+      <i className="fa-solid fa-gear"></i>
+      <span className="hidden sm:inline">{t('settings')}</span>
     </button>
 
-  </div>
+    {/* Settings Dropdown */}
+    {showSettings && (
+      <div style={{
+        position:'absolute',
+        top:62,
+        right:80,
+        width:240,
+        background:'white',
+        border:'1px solid rgba(5,150,105,0.18)',
+        borderRadius:16,
+        boxShadow:'0 12px 35px rgba(15,23,42,0.15)',
+        padding:8,
+        zIndex:100
+      }}>
+
+        <div style={{
+          padding:'10px 12px',
+          fontSize:12,
+          fontWeight:800,
+          color:'#64748b',
+          borderBottom:'1px solid #e2e8f0',
+          marginBottom:4
+        }}>
+          ⚙️ {t('settings')}
+        </div>
+
+        <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
+          👤 {t('profile')}
+        </button>
+
+        {/* Language */}
+        <button
+          onClick={() => setShowLanguages(!showLanguages)}
+          className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50"
+        >
+          🌐 {selectedLanguage}
+        </button>
+
+        {showLanguages && (
+          <div style={{padding:'8px 12px'}}>
+
+            <button
+              onClick={() => {
+                setSelectedLanguage('English');
+                setShowLanguages(false);
+              }}
+              className={`block w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50 ${
+                selectedLanguage === 'English'
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : ''
+              }`}
+            >
+              🇬🇧 English
+            </button>
+
+            <button
+              onClick={() => {
+                setSelectedLanguage('Hindi');
+                setShowLanguages(false);
+              }}
+              className={`block w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50 ${
+                selectedLanguage === 'Hindi'
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : ''
+              }`}
+            >
+              🇮🇳 Hindi
+            </button>
+
+            <button
+              onClick={() => {
+                setSelectedLanguage('Telugu');
+                setShowLanguages(false);
+              }}
+              className={`block w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50 ${
+                selectedLanguage === 'Telugu'
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : ''
+              }`}
+            >
+              🇮🇳 తెలుగు
+            </button>
+
+          </div>
+        )}
+
+        {userRole === 'FARMER' && (
+          <>
+            <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
+              📍 {t('preferredCentre')}
+            </button>
+
+            <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
+              📋 {t('bookingHistory')}
+            </button>
+          </>
+        )}
+
+        {userRole === 'OFFICER' && (
+          <>
+            <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
+              🏢 {t('assignedMandi')}
+            </button>
+
+            <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
+              📊 {t('workSummary')}
+            </button>
+
+            <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
+              ⚙️ {t('queuePreferences')}
+            </button>
+          </>
+        )}
+
+        <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
+          ❓ {t('helpSupport')}
+        </button>
+
+        <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50">
+          ℹ️ {t('aboutKisanSeva')}
+        </button>
+
+        <div style={{
+          height:1,
+          background:'#e2e8f0',
+          margin:'6px 4px'
+        }}></div>
+
+        <button
+          onClick={() => {
+            setShowSettings(false);
+            onLogout();
+          }}
+          className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold hover:bg-red-50"
+          style={{color:'#dc2626'}}
+        >
+          🚪 {t('logout')}
+        </button>
+
+      </div>
+    )}
+  </>
+)}
+
+{/* Admin keeps standalone Logout */}
+{userRole === 'ADMIN' && (
+  <button
+    onClick={onLogout}
+    title="Logout"
+    className="px-3 py-2 rounded-xl text-xs font-bold transition hover:bg-red-50"
+    style={{
+      background:'#fff',
+      border:'1px solid #fecaca',
+      color:'#dc2626',
+      cursor:'pointer'
+    }}
+  >
+    🚪 {t('logout')}
+  </button>
 )}
                 
               </div>

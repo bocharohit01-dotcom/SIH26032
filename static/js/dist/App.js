@@ -41,6 +41,67 @@ function App() {
 
   // ── NOTIFICATIONS ─────────────────────────────────────────
   const [notifications, setNotifications] = React.useState(window.DEMO_DATA && window.DEMO_DATA.notifications || []);
+  const [selectedLanguage, setSelectedLanguage] = React.useState('English');
+  const translations = {
+    English: {
+      dashboard: 'Dashboard',
+      mandiDiscovery: 'Mandi Discovery',
+      bookSlot: 'Book Slot',
+      liveQueue: 'Live Queue',
+      payoutReceipts: 'Payout & Receipts',
+      settings: 'Settings',
+      officerConsole: 'Mandi Inspector Console',
+      adminDash: 'Admin Dashboard',
+      profile: 'Profile',
+      preferredCentre: 'Preferred Procurement Centre',
+      bookingHistory: 'Booking History',
+      assignedMandi: 'Assigned Mandi',
+      workSummary: 'Work Summary',
+      queuePreferences: 'Queue Preferences',
+      helpSupport: 'Help & Support',
+      aboutKisanSeva: 'About KisanSeva',
+      logout: 'Logout'
+    },
+    Telugu: {
+      dashboard: 'డాష్‌బోర్డ్',
+      mandiDiscovery: 'మండి శోధన',
+      bookSlot: 'స్లాట్ బుక్ చేయండి',
+      liveQueue: 'లైవ్ క్యూ',
+      payoutReceipts: 'చెల్లింపులు & రసీదులు',
+      settings: 'సెట్టింగ్స్',
+      officerConsole: 'మండి ఇన్‌స్పెక్టర్ కన్సోల్',
+      adminDash: 'అడ్మిన్ డాష్‌బోర్డ్',
+      profile: 'ప్రొఫైల్',
+      preferredCentre: 'ఇష్టమైన కొనుగోలు కేంద్రం',
+      bookingHistory: 'బుకింగ్ చరిత్ర',
+      assignedMandi: 'కేటాయించిన మండి',
+      workSummary: 'పని సారాంశం',
+      queuePreferences: 'క్యూ ప్రాధాన్యతలు',
+      helpSupport: 'సహాయం & మద్దతు',
+      aboutKisanSeva: 'కిసాన్‌సేవ గురించి',
+      logout: 'లాగ్ అవుట్'
+    },
+    Hindi: {
+      dashboard: 'डैशबोर्ड',
+      mandiDiscovery: 'मंडी खोज',
+      bookSlot: 'स्लॉट बुक करें',
+      liveQueue: 'लाइव कतार',
+      payoutReceipts: 'भुगतान और रसीदें',
+      settings: 'सेटिंग्स',
+      officerConsole: 'मंडी इंस्पेक्टर कंसोल',
+      adminDash: 'एडमिन डैशबोर्ड',
+      profile: 'प्रोफ़ाइल',
+      preferredCentre: 'पसंदीदा खरीद केंद्र',
+      bookingHistory: 'बुकिंग इतिहास',
+      assignedMandi: 'सौंपा गया मंडी',
+      workSummary: 'कार्य सारांश',
+      queuePreferences: 'कतार प्राथमिकताएँ',
+      helpSupport: 'सहायता और समर्थन',
+      aboutKisanSeva: 'किसानसेवा के बारे में',
+      logout: 'लॉग आउट'
+    }
+  };
+  const t = key => translations[selectedLanguage][key] || key;
   const [isNotifOpen, setIsNotifOpen] = React.useState(false);
   const unreadNotifCount = (notifications || []).filter(n => !n.read).length;
 
@@ -494,7 +555,10 @@ function App() {
     setUserRole: setUserRole,
     unreadNotifCount: unreadNotifCount,
     toggleNotifDrawer: () => setIsNotifOpen(!isNotifOpen),
-    onLogout: handleLogout
+    onLogout: handleLogout,
+    selectedLanguage: selectedLanguage,
+    setSelectedLanguage: setSelectedLanguage,
+    t: t
   }), /*#__PURE__*/React.createElement("main", {
     className: "flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 lg:pb-12"
   }, pageHistory.length > 0 && /*#__PURE__*/React.createElement("div", {
