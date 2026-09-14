@@ -5,7 +5,7 @@ window.FarmerDashboard = function FarmerDashboard({
   user,
   activeBooking,
   t,
-  selectLanguage,
+  selectedLanguage,
   transliterateFarmerName
 }) {
   // All bookings the farmer can manage
