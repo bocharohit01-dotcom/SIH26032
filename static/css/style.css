@@ -672,7 +672,7 @@ h1,h2,h3,h4,h5,h6 {
     background:linear-gradient(135deg,#f59e0b,#d97706);
     color:white; font-size:10px; font-weight:800;
     padding:4px 40px; transform:rotate(45deg);
-    z-index:999; letter-spacing:.06em;
+    z-index: index 50;; letter-spacing:.06em;
     box-shadow:0 2px 8px rgba(245,158,11,0.4);
 }
 
