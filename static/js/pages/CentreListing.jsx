@@ -8,98 +8,101 @@ window.CentreListing = function CentreListing({
 }) {
 
  const [allCentres, setAllCentres] = React.useState([]);
+const [liveCentres, setLiveCentres] = React.useState([]);
+const [searchText, setSearchText] = React.useState('');
+const [selectedDistrict, setSelectedDistrict] = React.useState('All Districts');
+const [sortMode, setSortMode] = React.useState('nearest');
+const [location, setLocation] = React.useState(null);
+const [locationStatus, setLocationStatus] = React.useState('');
+// ---------------------------------------------------------
+// GET FARMER LOCATION
+// ---------------------------------------------------------
 
-  const [searchText, setSearchText] = React.useState('');
-  const [selectedDistrict, setSelectedDistrict] =
-    React.useState('All Districts');
+React.useEffect(() => {
+  if (!navigator.geolocation) {
+    setLocationStatus('Location is not supported by this browser.');
+    return;
+  }
 
-  const [sortMode, setSortMode] =
-    React.useState('nearest');
+  setLocationStatus('Getting your current location...');
 
-  const [location, setLocation] =
-    React.useState(null);
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      const coords = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
 
-  const [locationStatus, setLocationStatus] =
-    React.useState('');
-  const [liveCentres, setLiveCentres] = React.useState([]);
+      setLocation(coords);
+      setLocationStatus('Using your current location.');
+    },
+    error => {
+      console.warn('Location access failed:', error);
 
-  // ---------------------------------------------------------
-  // GET FARMER LOCATION
-  // ---------------------------------------------------------
-
-  React.useEffect(() => {
-
-    if (!navigator.geolocation) {
-      setLocationStatus('Location not supported');
-      return;
+      setLocationStatus(
+        'Location unavailable. Showing centres using saved distances.'
+      );
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 300000
     }
+  );
+}, []);
+// 1. Load ALL centres
+React.useEffect(() => {
+  let cancelled = false;
 
-    navigator.geolocation.getCurrentPosition(
+  const loadCentres = async () => {
+    try {
+      const response = await fetch('/api/centres');
+      const data = await response.json();
 
-      (position) => {
-
-        setLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        });
-
-        setLocationStatus('');
-      },
-
-      () => {
-        setLocationStatus(
-          'Using saved centre distances'
-        );
-      },
-
-      {
-        enableHighAccuracy: false,
-        timeout: 10000,
-        maximumAge: 60000
+      if (!cancelled && Array.isArray(data.centres)) {
+        setAllCentres(data.centres);
       }
+    } catch (error) {
+      console.error('Failed to load centres:', error);
+    }
+  };
 
-    );
+  loadCentres();
 
-  }, []);
-    // ---------------------------------------------------------
-  // LOAD LIVE PROCUREMENT CENTRE DATA
-  // ---------------------------------------------------------
+  return () => {
+    cancelled = true;
+  };
+}, []);
 
-  React.useEffect(() => {
+// 2. Load LIVE queue/wait/capacity data
+React.useEffect(() => {
+  let cancelled = false;
 
-    const loadCentres = async () => {
+  const loadLiveData = async () => {
+    try {
+      const url = location
+        ? `/api/centres/recommend?lat=${encodeURIComponent(
+            location.lat
+          )}&lng=${encodeURIComponent(location.lng)}&max_distance=1000`
+        : '/api/centres/recommend?max_distance=1000';
 
-      try {
+      const response = await fetch(url);
+      const data = await response.json();
 
-       const response = await fetch(
-  location
-    ? `/api/centres/recommend?lat=${encodeURIComponent(location.lat)}&lng=${encodeURIComponent(location.lng)}&max_distance=1000`
-    : '/api/centres/recommend?max_distance=1000'
-);
-
-        if (!response.ok) {
-          throw new Error('Failed to load centres');
-        }
-
-        const data = await response.json();
-
-        if (Array.isArray(data.recommended)) {
-          setAllCentres(data.recommended);
-          setLiveCentres(data.recommended);
-        }
-
-      } catch (error) {
-
-        console.error('Centre loading error:', error);
-
-        // Keep existing demo data as fallback
+      if (!cancelled && Array.isArray(data.recommended)) {
+        setLiveCentres(data.recommended);
       }
+    } catch (error) {
+      console.error('Failed to load live centre data:', error);
+    }
+  };
 
-    };
+  loadLiveData();
 
-    loadCentres();
-
-  }, [location]);
+  return () => {
+    cancelled = true;
+  };
+}, [location]);
 
   // ---------------------------------------------------------
   // HAVERSINE DISTANCE
@@ -183,10 +186,10 @@ const preparedCentres =
   allCentres
 
     .filter(
-      centre =>
-        centre.state === 'Andhra Pradesh'
-    )
-
+  centre =>
+    String(centre.state || '').trim().toLowerCase() ===
+    'andhra pradesh'
+)
     .map(
       centre => {
 
@@ -233,13 +236,23 @@ const preparedCentres =
               )
             : 0;
 
-        const capacityPercent =
-          liveCentre &&
-          liveCentre.capacity_pct !== undefined
-            ? Number(
-                liveCentre.capacity_pct
-              )
-            : 0;
+       const maxCapacity = Number(
+  centre.max_capacity_quintals || 0
+);
+
+const currentLoad = Number(
+  centre.current_load_quintals || 0
+);
+
+const capacityPercent =
+  liveCentre &&
+  liveCentre.capacity_pct !== undefined
+    ? Number(liveCentre.capacity_pct)
+    : (
+        maxCapacity > 0
+          ? (currentLoad / maxCapacity) * 100
+          : 0
+      );
 
         let tag = 'STANDARD';
 

@@ -7,59 +7,77 @@ window.CentreListing = function CentreListing({
   user
 }) {
   const [allCentres, setAllCentres] = React.useState([]);
+  const [liveCentres, setLiveCentres] = React.useState([]);
   const [searchText, setSearchText] = React.useState('');
   const [selectedDistrict, setSelectedDistrict] = React.useState('All Districts');
   const [sortMode, setSortMode] = React.useState('nearest');
   const [location, setLocation] = React.useState(null);
   const [locationStatus, setLocationStatus] = React.useState('');
-  const [liveCentres, setLiveCentres] = React.useState([]);
-
   // ---------------------------------------------------------
   // GET FARMER LOCATION
   // ---------------------------------------------------------
 
   React.useEffect(() => {
     if (!navigator.geolocation) {
-      setLocationStatus('Location not supported');
+      setLocationStatus('Location is not supported by this browser.');
       return;
     }
+    setLocationStatus('Getting your current location...');
     navigator.geolocation.getCurrentPosition(position => {
-      setLocation({
+      const coords = {
         lat: position.coords.latitude,
         lng: position.coords.longitude
-      });
-      setLocationStatus('');
-    }, () => {
-      setLocationStatus('Using saved centre distances');
+      };
+      setLocation(coords);
+      setLocationStatus('Using your current location.');
+    }, error => {
+      console.warn('Location access failed:', error);
+      setLocationStatus('Location unavailable. Showing centres using saved distances.');
     }, {
-      enableHighAccuracy: false,
+      enableHighAccuracy: true,
       timeout: 10000,
-      maximumAge: 60000
+      maximumAge: 300000
     });
   }, []);
-  // ---------------------------------------------------------
-  // LOAD LIVE PROCUREMENT CENTRE DATA
-  // ---------------------------------------------------------
-
+  // 1. Load ALL centres
   React.useEffect(() => {
+    let cancelled = false;
     const loadCentres = async () => {
       try {
-        const response = await fetch(location ? `/api/centres/recommend?lat=${encodeURIComponent(location.lat)}&lng=${encodeURIComponent(location.lng)}&max_distance=1000` : '/api/centres/recommend?max_distance=1000');
-        if (!response.ok) {
-          throw new Error('Failed to load centres');
-        }
+        const response = await fetch('/api/centres');
         const data = await response.json();
-        if (Array.isArray(data.recommended)) {
-          setAllCentres(data.recommended);
-          setLiveCentres(data.recommended);
+        if (!cancelled && Array.isArray(data.centres)) {
+          setAllCentres(data.centres);
         }
       } catch (error) {
-        console.error('Centre loading error:', error);
-
-        // Keep existing demo data as fallback
+        console.error('Failed to load centres:', error);
       }
     };
     loadCentres();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // 2. Load LIVE queue/wait/capacity data
+  React.useEffect(() => {
+    let cancelled = false;
+    const loadLiveData = async () => {
+      try {
+        const url = location ? `/api/centres/recommend?lat=${encodeURIComponent(location.lat)}&lng=${encodeURIComponent(location.lng)}&max_distance=1000` : '/api/centres/recommend?max_distance=1000';
+        const response = await fetch(url);
+        const data = await response.json();
+        if (!cancelled && Array.isArray(data.recommended)) {
+          setLiveCentres(data.recommended);
+        }
+      } catch (error) {
+        console.error('Failed to load live centre data:', error);
+      }
+    };
+    loadLiveData();
+    return () => {
+      cancelled = true;
+    };
   }, [location]);
 
   // ---------------------------------------------------------
@@ -85,7 +103,7 @@ window.CentreListing = function CentreListing({
   // PREPARE CENTRE DATA
   // ---------------------------------------------------------
 
-  const preparedCentres = allCentres.filter(centre => centre.state === 'Andhra Pradesh').map(centre => {
+  const preparedCentres = allCentres.filter(centre => String(centre.state || '').trim().toLowerCase() === 'andhra pradesh').map(centre => {
     const liveCentre = liveCentres.find(item => String(item.id) === String(centre.id));
     let distance = Number(centre.distanceKm || 0);
     if (location && centre.lat && centre.lng) {
@@ -93,7 +111,9 @@ window.CentreListing = function CentreListing({
     }
     const queue = liveCentre && liveCentre.active_queue_length !== undefined ? Number(liveCentre.active_queue_length) : 0;
     const waitTime = liveCentre && liveCentre.est_wait_mins !== undefined ? Number(liveCentre.est_wait_mins) : 0;
-    const capacityPercent = liveCentre && liveCentre.capacity_pct !== undefined ? Number(liveCentre.capacity_pct) : 0;
+    const maxCapacity = Number(centre.max_capacity_quintals || 0);
+    const currentLoad = Number(centre.current_load_quintals || 0);
+    const capacityPercent = liveCentre && liveCentre.capacity_pct !== undefined ? Number(liveCentre.capacity_pct) : maxCapacity > 0 ? currentLoad / maxCapacity * 100 : 0;
     let tag = 'STANDARD';
     if (capacityPercent < 35) {
       tag = 'HIGH CAPACITY';
