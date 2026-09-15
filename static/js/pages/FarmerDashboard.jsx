@@ -111,7 +111,14 @@ React.useEffect(() => {
     setTimeout(() => setCancelSuccess(null), 4000);
   };
 
-  const activeSlot = myBookings.find(b => b.status !== 'COMPLETED' && b.status !== 'CANCELLED');
+ const activeSlot =
+  (activeBooking &&
+   activeBooking.status !== 'COMPLETED' &&
+   activeBooking.status !== 'CANCELLED')
+    ? activeBooking
+    : myBookings.find(
+        b => b.status !== 'COMPLETED' && b.status !== 'CANCELLED'
+      );
   const pastBookings = myBookings.filter(b => b.status === 'COMPLETED' || b.status === 'CANCELLED');
 
   const statusColors = {
@@ -354,151 +361,7 @@ React.useEffect(() => {
         </div>
       </div>
 
-      {/* ── ACTIVE BOOKING CARD ─────────────────────────── */}
-      {activeSlot && (
-        <div style={{marginBottom:28}}>
-          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}}>
-            <h3 style={{fontFamily:'Outfit,sans-serif',fontWeight:800,fontSize:18,
-              color:'#0f172a',display:'flex',alignItems:'center',gap:8}}>
-              <i className="fa-solid fa-ticket-simple" style={{color:'#f59e0b'}}></i>
-              {t('yourActiveProcurementToken')}
-            </h3>
-            <span style={{
-              fontSize:11,fontWeight:700,display:'flex',alignItems:'center',gap:5,
-              background:'#d1fae5',color:'#065f46',padding:'3px 12px',borderRadius:99,
-              border:'1px solid #6ee7b7'
-            }}>
-              <span style={{width:7,height:7,borderRadius:'50%',background:'#059669',
-                display:'inline-block',animation:'pulse 2s infinite'}}></span>
-              {t('liveStatus')}
-            </span>
-          </div>
-
-          <div style={{
-            background:'white',borderRadius:20,
-            border:'1.5px solid rgba(5,150,105,0.25)',
-            boxShadow:'0 12px 36px rgba(5,150,105,0.12)',
-            overflow:'hidden'
-          }}>
-            {/* Token Header */}
-            <div style={{
-              background:'linear-gradient(135deg,#f0fdf4,#ecfdf5)',
-              borderBottom:'1px solid rgba(5,150,105,0.15)',
-              padding:'18px 24px',
-              display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12
-            }}>
-              <div>
-                <div style={{fontSize:11,color:'#64748b',fontWeight:600,
-                  textTransform:'uppercase',letterSpacing:'.06em',marginBottom:4}}>
-                  {t('tokenNumber')}
-                </div>
-                <div style={{fontFamily:'Outfit,sans-serif',fontWeight:900,fontSize:28,
-                  color:'#f59e0b',letterSpacing:'.04em'}}>
-                  {activeSlot.tokenNumber}
-                </div>
-              </div>
-              <div style={{display:'flex',alignItems:'center',gap:10}}>
-                <div style={{
-                  background:'white',border:'1px solid rgba(5,150,105,0.2)',
-                  borderRadius:12,padding:'8px 14px',fontSize:12
-                }}>
-                  <div style={{color:'#94a3b8',fontWeight:600}}>
-                    {t('cropEstWeight')}
-                  </div>
-                  <div style={{fontWeight:800,color:'#0f172a'}}>
-                    {activeSlot.cropType} · {activeSlot.estimatedQty}  {t('qtl')}
-                  </div>
-                </div>
-                {/* Status badge */}
-                {(() => {
-                  const s = statusColors[activeSlot.status] || {bg:'#f1f5f9',color:'#475569',icon:'fa-circle'};
-                  return (
-                    <div style={{
-                      background:s.bg,color:s.color,fontSize:11,fontWeight:800,
-                      padding:'5px 12px',borderRadius:99,display:'flex',alignItems:'center',gap:5
-                    }}>
-                      <i className={`fa-solid ${s.icon}`}></i>
-                      {translateStatus(activeSlot.status)}
-                    </div>
-                  );
-                })()}
-              </div>
-            </div>
-
-            {/* Stats strips */}
-            <div style={{
-              display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(110px,1fr))',
-              gap:1,background:'#f1f5f9',padding:'0'
-            }}>
-              {[
-                {label:t('procurementYard'),val:activeSlot.centreName?.split(' ').slice(0,3).join(' ')+'…',icon:'fa-building'},
-                {label:t('timeWindow'),val:activeSlot.timeWindow,icon:'fa-clock',col:'#059669'},
-                {label:t('farmersAhead'),val:activeSlot.tokensAhead+' Farmers',icon:'fa-users',col:'#f59e0b'},
-                {label:t('estWait'),val:activeSlot.estWaitMins+' Mins',icon:'fa-hourglass-half',col:'#0d9488'},
-              ].map((m,i)=>(
-                <div key={i} style={{background:'white',padding:'14px 18px',textAlign:'center'}}>
-                  <i className={`fa-solid ${m.icon}`} style={{color:m.col||'#94a3b8',fontSize:14,marginBottom:6,display:'block'}}></i>
-                  <div style={{fontSize:11,color:'#94a3b8',fontWeight:600,marginBottom:3}}>{m.label}</div>
-                  <div style={{fontWeight:800,fontSize:13,color:m.col||'#0f172a'}}>{m.val}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Action Buttons */}
-            <div style={{
-              padding:'16px 24px',display:'flex',
-              justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:10
-            }}>
-              <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-                <button
-                  onClick={() => navigateTo('bookingConfirmation')}
-                  style={{
-                    background:'white',border:'1.5px solid #e2e8f0',color:'#475569',
-                    fontWeight:700,fontSize:12,padding:'8px 14px',
-                    borderRadius:10,cursor:'pointer',display:'flex',alignItems:'center',gap:5,
-                    transition:'all 0.2s'
-                  }}
-                  onMouseOver={e=>Object.assign(e.currentTarget.style,{background:'#f8fafc',borderColor:'#059669',color:'#059669'})}
-                  onMouseOut={e=>Object.assign(e.currentTarget.style,{background:'white',borderColor:'#e2e8f0',color:'#475569'})}
-                >
-                  <i className="fa-solid fa-qrcode" style={{color:'#059669'}}></i> {t('viewDigitalPass')}
-                </button>
-                <button
-                  onClick={() => navigateTo('liveQueue')}
-                  style={{
-                    background:'linear-gradient(135deg,#059669,#0d9488)',color:'white',
-                    fontWeight:800,fontSize:12,padding:'8px 16px',
-                    borderRadius:10,border:'none',cursor:'pointer',
-                    display:'flex',alignItems:'center',gap:5,
-                    boxShadow:'0 4px 12px rgba(5,150,105,0.3)',transition:'all 0.2s'
-                  }}
-                  onMouseOver={e=>Object.assign(e.currentTarget.style,{transform:'translateY(-1px)'})}
-                  onMouseOut={e=>Object.assign(e.currentTarget.style,{transform:'translateY(0)'})}
-                >
-                  <i className="fa-solid fa-stopwatch"></i> {t('trackLiveQueue')}
-                </button>
-              </div>
-
-              {/* 🚫 CANCEL BUTTON */}
-              {canCancel(activeSlot.status) && (
-                <button
-                  onClick={() => openCancelDialog(activeSlot)}
-                  style={{
-                    background:'#fef2f2',border:'1.5px solid #fecaca',
-                    color:'#dc2626',fontWeight:700,fontSize:12,
-                    padding:'8px 14px',borderRadius:10,cursor:'pointer',
-                    display:'flex',alignItems:'center',gap:5,transition:'all 0.2s'
-                  }}
-                  onMouseOver={e=>Object.assign(e.currentTarget.style,{background:'#fee2e2',borderColor:'#fca5a5'})}
-                  onMouseOut={e=>Object.assign(e.currentTarget.style,{background:'#fef2f2',borderColor:'#fecaca'})}
-                >
-                  <i className="fa-solid fa-circle-xmark"></i> {t('cancelSlot')}
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      
 
       {/* ── QUICK ACTIONS ─────────────────────────────── */}
       <div style={{marginBottom:28}}>
@@ -555,7 +418,387 @@ React.useEffect(() => {
           ))}
         </div>
       </div>
+      {/* ── ACTIVE BOOKING CARD ─────────────────────────── */}
+      {activeSlot && (
+        <div style={{marginBottom:28}}>
 
+          <div style={{
+            display:'flex',
+            alignItems:'center',
+            justifyContent:'space-between',
+            marginBottom:14
+          }}>
+            <h3 style={{
+              fontFamily:'Outfit,sans-serif',
+              fontWeight:800,
+              fontSize:18,
+              color:'#0f172a',
+              display:'flex',
+              alignItems:'center',
+              gap:8
+            }}>
+              <i
+                className="fa-solid fa-ticket-simple"
+                style={{color:'#f59e0b'}}
+              ></i>
+
+              {t('yourActiveProcurementToken')}
+            </h3>
+
+            <span style={{
+              fontSize:11,
+              fontWeight:700,
+              display:'flex',
+              alignItems:'center',
+              gap:5,
+              background:'#d1fae5',
+              color:'#065f46',
+              padding:'3px 12px',
+              borderRadius:99,
+              border:'1px solid #6ee7b7'
+            }}>
+              <span style={{
+                width:7,
+                height:7,
+                borderRadius:'50%',
+                background:'#059669',
+                display:'inline-block',
+                animation:'pulse 2s infinite'
+              }}></span>
+
+              {t('liveStatus')}
+            </span>
+          </div>
+
+
+          {/* ── BOOKING CARD ───────────────────────────── */}
+          <div style={{
+            background:'white',
+            borderRadius:20,
+            border:'1.5px solid rgba(5,150,105,0.25)',
+            boxShadow:'0 12px 36px rgba(5,150,105,0.12)',
+            overflow:'hidden'
+          }}>
+
+            {/* ── TOKEN HEADER ───────────────────────── */}
+            <div style={{
+              background:'linear-gradient(135deg,#f0fdf4,#ecfdf5)',
+              borderBottom:'1px solid rgba(5,150,105,0.15)',
+              padding:'18px 24px',
+              display:'flex',
+              justifyContent:'space-between',
+              alignItems:'center',
+              flexWrap:'wrap',
+              gap:12
+            }}>
+
+              <div>
+                <div style={{
+                  fontSize:11,
+                  color:'#64748b',
+                  fontWeight:600,
+                  textTransform:'uppercase',
+                  letterSpacing:'.06em',
+                  marginBottom:4
+                }}>
+                  {t('tokenNumber')}
+                </div>
+
+                <div style={{
+                  fontFamily:'Outfit,sans-serif',
+                  fontWeight:900,
+                  fontSize:28,
+                  color:'#f59e0b',
+                  letterSpacing:'.04em'
+                }}>
+                  {activeSlot.tokenNumber}
+                </div>
+              </div>
+
+
+              {/* Crop + Quantity + Status */}
+              <div style={{
+                display:'flex',
+                alignItems:'center',
+                gap:10
+              }}>
+
+                <div style={{
+                  background:'white',
+                  border:'1px solid rgba(5,150,105,0.2)',
+                  borderRadius:12,
+                  padding:'8px 14px',
+                  fontSize:12
+                }}>
+                  <div style={{
+                    color:'#94a3b8',
+                    fontWeight:600
+                  }}>
+                    {t('cropEstWeight')}
+                  </div>
+
+                  <div style={{
+                    fontWeight:800,
+                    color:'#0f172a'
+                  }}>
+                    {activeSlot.cropType} · {activeSlot.estimatedQty} {t('qtl')}
+                  </div>
+                </div>
+
+
+                {/* Status Badge */}
+                {(() => {
+                  const s = statusColors[activeSlot.status] || {
+                    bg:'#f1f5f9',
+                    color:'#475569',
+                    icon:'fa-circle'
+                  };
+
+                  return (
+                    <div style={{
+                      background:s.bg,
+                      color:s.color,
+                      fontSize:11,
+                      fontWeight:800,
+                      padding:'5px 12px',
+                      borderRadius:99,
+                      display:'flex',
+                      alignItems:'center',
+                      gap:5
+                    }}>
+                      <i className={`fa-solid ${s.icon}`}></i>
+                      {translateStatus(activeSlot.status)}
+                    </div>
+                  );
+                })()}
+
+              </div>
+            </div>
+
+
+            {/* ── BOOKING STATS ───────────────────────── */}
+            <div style={{
+              display:'grid',
+              gridTemplateColumns:'repeat(auto-fit,minmax(110px,1fr))',
+              gap:1,
+              background:'#f1f5f9',
+              padding:'0'
+            }}>
+
+              {[
+                {
+                  label:t('procurementYard'),
+                  val:activeSlot.centreName
+                    ?.split(' ')
+                    .slice(0,3)
+                    .join(' ') + '…',
+                  icon:'fa-building'
+                },
+                {
+                  label:t('timeWindow'),
+                  val:activeSlot.timeWindow,
+                  icon:'fa-clock',
+                  col:'#059669'
+                },
+                {
+                  label:t('farmersAhead'),
+                  val:activeSlot.tokensAhead + ' Farmers',
+                  icon:'fa-users',
+                  col:'#f59e0b'
+                },
+                {
+                  label:t('estWait'),
+                  val:activeSlot.estWaitMins + ' Mins',
+                  icon:'fa-hourglass-half',
+                  col:'#0d9488'
+                }
+              ].map((m,i) => (
+                <div
+                  key={i}
+                  style={{
+                    background:'white',
+                    padding:'14px 18px',
+                    textAlign:'center'
+                  }}
+                >
+                  <i
+                    className={`fa-solid ${m.icon}`}
+                    style={{
+                      color:m.col || '#94a3b8',
+                      fontSize:14,
+                      marginBottom:6,
+                      display:'block'
+                    }}
+                  ></i>
+
+                  <div style={{
+                    fontSize:11,
+                    color:'#94a3b8',
+                    fontWeight:600,
+                    marginBottom:3
+                  }}>
+                    {m.label}
+                  </div>
+
+                  <div style={{
+                    fontWeight:800,
+                    fontSize:13,
+                    color:m.col || '#0f172a'
+                  }}>
+                    {m.val}
+                  </div>
+                </div>
+              ))}
+
+            </div>
+
+
+            {/* ── ACTION BUTTONS ──────────────────────── */}
+            <div style={{
+              padding:'16px 24px',
+              display:'flex',
+              justifyContent:'space-between',
+              alignItems:'center',
+              flexWrap:'wrap',
+              gap:10
+            }}>
+
+              <div style={{
+                display:'flex',
+                gap:8,
+                flexWrap:'wrap'
+              }}>
+
+                {/* Digital Pass */}
+                <button
+                  onClick={() => navigateTo('bookingConfirmation')}
+                  style={{
+                    background:'white',
+                    border:'1.5px solid #e2e8f0',
+                    color:'#475569',
+                    fontWeight:700,
+                    fontSize:12,
+                    padding:'8px 14px',
+                    borderRadius:10,
+                    cursor:'pointer',
+                    display:'flex',
+                    alignItems:'center',
+                    gap:5,
+                    transition:'all 0.2s'
+                  }}
+                  onMouseOver={e => Object.assign(
+                    e.currentTarget.style,
+                    {
+                      background:'#f8fafc',
+                      borderColor:'#059669',
+                      color:'#059669'
+                    }
+                  )}
+                  onMouseOut={e => Object.assign(
+                    e.currentTarget.style,
+                    {
+                      background:'white',
+                      borderColor:'#e2e8f0',
+                      color:'#475569'
+                    }
+                  )}
+                >
+                  <i
+                    className="fa-solid fa-qrcode"
+                    style={{color:'#059669'}}
+                  ></i>
+
+                  {t('viewDigitalPass')}
+                </button>
+
+
+                {/* Live Queue */}
+                <button
+                  onClick={() => navigateTo('liveQueue')}
+                  style={{
+                    background:'linear-gradient(135deg,#059669,#0d9488)',
+                    color:'white',
+                    fontWeight:800,
+                    fontSize:12,
+                    padding:'8px 16px',
+                    borderRadius:10,
+                    border:'none',
+                    cursor:'pointer',
+                    display:'flex',
+                    alignItems:'center',
+                    gap:5,
+                    boxShadow:'0 4px 12px rgba(5,150,105,0.3)',
+                    transition:'all 0.2s'
+                  }}
+                  onMouseOver={e =>
+                    Object.assign(
+                      e.currentTarget.style,
+                      {transform:'translateY(-1px)'}
+                    )
+                  }
+                  onMouseOut={e =>
+                    Object.assign(
+                      e.currentTarget.style,
+                      {transform:'translateY(0)'}
+                    )
+                  }
+                >
+                  <i className="fa-solid fa-stopwatch"></i>
+
+                  {t('trackLiveQueue')}
+                </button>
+
+              </div>
+
+
+              {/* ── CANCEL SLOT ──────────────────────── */}
+              {canCancel(activeSlot.status) && (
+                <button
+                  onClick={() => openCancelDialog(activeSlot)}
+                  style={{
+                    background:'#fef2f2',
+                    border:'1.5px solid #fecaca',
+                    color:'#dc2626',
+                    fontWeight:700,
+                    fontSize:12,
+                    padding:'8px 14px',
+                    borderRadius:10,
+                    cursor:'pointer',
+                    display:'flex',
+                    alignItems:'center',
+                    gap:5,
+                    transition:'all 0.2s'
+                  }}
+                  onMouseOver={e =>
+                    Object.assign(
+                      e.currentTarget.style,
+                      {
+                        background:'#fee2e2',
+                        borderColor:'#fca5a5'
+                      }
+                    )
+                  }
+                  onMouseOut={e =>
+                    Object.assign(
+                      e.currentTarget.style,
+                      {
+                        background:'#fef2f2',
+                        borderColor:'#fecaca'
+                      }
+                    )
+                  }
+                >
+                  <i className="fa-solid fa-circle-xmark"></i>
+
+                  {t('cancelSlot')}
+                </button>
+              )}
+
+            </div>
+
+          </div>
+        </div>
+      )}
       {/* ── PAST BOOKINGS ─────────────────────────────── */}
       {pastBookings.length > 0 && (
         <div>

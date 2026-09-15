@@ -1,5 +1,5 @@
 
-/* --- static/js/data/demoData.js --- */
+/* --- static\js\data\demoData.js --- */
 // Centralized Mock Data Store for KisanSeva Platform
 
 window.DEMO_DATA = {
@@ -2637,7 +2637,7 @@ window.FarmerDashboard = function FarmerDashboard({
     setCancelTarget(null);
     setTimeout(() => setCancelSuccess(null), 4000);
   };
-  const activeSlot = myBookings.find(b => b.status !== 'COMPLETED' && b.status !== 'CANCELLED');
+  const activeSlot = activeBooking && activeBooking.status !== 'COMPLETED' && activeBooking.status !== 'CANCELLED' ? activeBooking : myBookings.find(b => b.status !== 'COMPLETED' && b.status !== 'CANCELLED');
   const pastBookings = myBookings.filter(b => b.status === 'COMPLETED' || b.status === 'CANCELLED');
   const statusColors = {
     BOOKED: {
@@ -3062,7 +3062,125 @@ window.FarmerDashboard = function FarmerDashboard({
     })
   }, /*#__PURE__*/React.createElement("i", {
     className: "fa-solid fa-compass"
-  }), t('findCentres'))))), activeSlot && /*#__PURE__*/React.createElement("div", {
+  }), t('findCentres'))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 28
+    }
+  }, /*#__PURE__*/React.createElement("h3", {
+    style: {
+      fontFamily: 'Outfit,sans-serif',
+      fontWeight: 800,
+      fontSize: 18,
+      color: '#0f172a',
+      marginBottom: 14
+    }
+  }, t('quickFarmerServices')), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))',
+      gap: 14
+    }
+  }, [{
+    page: 'centreListing',
+    icon: 'fa-compass',
+    emoji: '🗺️',
+    bg: 'linear-gradient(135deg,#d1fae5,#a7f3d0)',
+    color: '#059669',
+    shadow: 'rgba(5,150,105,0.2)',
+    title: t('mandiDiscovery'),
+    desc: t('mandiDiscoveryDesc')
+  }, {
+    page: 'slotBooking',
+    icon: 'fa-calendar-check',
+    emoji: '📅',
+    bg: 'linear-gradient(135deg,#ccfbf1,#99f6e4)',
+    color: '#0d9488',
+    shadow: 'rgba(13,148,136,0.2)',
+    title: t('bookDeliverySlot'),
+    desc: t('bookDeliverySlotDesc')
+  }, {
+    page: 'liveQueue',
+    icon: 'fa-stopwatch',
+    emoji: '📡',
+    bg: 'linear-gradient(135deg,#fef3c7,#fde68a)',
+    color: '#d97706',
+    shadow: 'rgba(245,158,11,0.2)',
+    title: t('liveQueueTracker'),
+    desc: t('liveQueueTrackerDesc')
+  }, {
+    page: 'procurementStatus',
+    icon: 'fa-receipt',
+    emoji: '🏦',
+    bg: 'linear-gradient(135deg,#dbeafe,#bfdbfe)',
+    color: '#2563eb',
+    shadow: 'rgba(59,130,246,0.2)',
+    title: t('payoutReceipts'),
+    desc: t('payoutReceiptsDesc')
+  }].map((c, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    onClick: () => navigateTo(c.page),
+    style: {
+      background: 'white',
+      borderRadius: 16,
+      padding: '18px',
+      border: '1px solid rgba(0,0,0,0.06)',
+      boxShadow: '0 4px 16px rgba(0,0,0,0.05)',
+      cursor: 'pointer',
+      transition: 'all 0.25s',
+      position: 'relative',
+      overflow: 'hidden'
+    },
+    onMouseOver: e => Object.assign(e.currentTarget.style, {
+      transform: 'translateY(-4px)',
+      boxShadow: `0 14px 36px ${c.shadow}`
+    }),
+    onMouseOut: e => Object.assign(e.currentTarget.style, {
+      transform: 'translateY(0)',
+      boxShadow: '0 4px 16px rgba(0,0,0,0.05)'
+    })
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 48,
+      height: 48,
+      borderRadius: 13,
+      background: c.bg,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: 22,
+      marginBottom: 12,
+      boxShadow: `0 4px 14px ${c.shadow}`
+    }
+  }, c.emoji), /*#__PURE__*/React.createElement("h4", {
+    style: {
+      fontFamily: 'Outfit,sans-serif',
+      fontWeight: 800,
+      fontSize: 15,
+      color: '#0f172a',
+      margin: '0 0 5px'
+    }
+  }, c.title), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 12,
+      color: '#64748b',
+      margin: '0 0 12px',
+      lineHeight: 1.6
+    }
+  }, c.desc), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      fontWeight: 700,
+      color: c.color,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 4
+    }
+  }, t('open'), " ", /*#__PURE__*/React.createElement("i", {
+    className: "fa-solid fa-chevron-right",
+    style: {
+      fontSize: 10
+    }
+  })))))), activeSlot && /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 28
     }
@@ -3170,7 +3288,7 @@ window.FarmerDashboard = function FarmerDashboard({
       fontWeight: 800,
       color: '#0f172a'
     }
-  }, activeSlot.cropType, " \xB7 ", activeSlot.estimatedQty, "  ", t('qtl'))), (() => {
+  }, activeSlot.cropType, " \xB7 ", activeSlot.estimatedQty, " ", t('qtl'))), (() => {
     const s = statusColors[activeSlot.status] || {
       bg: '#f1f5f9',
       color: '#475569',
@@ -3292,7 +3410,7 @@ window.FarmerDashboard = function FarmerDashboard({
     style: {
       color: '#059669'
     }
-  }), " ", t('viewDigitalPass')), /*#__PURE__*/React.createElement("button", {
+  }), t('viewDigitalPass')), /*#__PURE__*/React.createElement("button", {
     onClick: () => navigateTo('liveQueue'),
     style: {
       background: 'linear-gradient(135deg,#059669,#0d9488)',
@@ -3317,7 +3435,7 @@ window.FarmerDashboard = function FarmerDashboard({
     })
   }, /*#__PURE__*/React.createElement("i", {
     className: "fa-solid fa-stopwatch"
-  }), " ", t('trackLiveQueue'))), canCancel(activeSlot.status) && /*#__PURE__*/React.createElement("button", {
+  }), t('trackLiveQueue'))), canCancel(activeSlot.status) && /*#__PURE__*/React.createElement("button", {
     onClick: () => openCancelDialog(activeSlot),
     style: {
       background: '#fef2f2',
@@ -3343,125 +3461,7 @@ window.FarmerDashboard = function FarmerDashboard({
     })
   }, /*#__PURE__*/React.createElement("i", {
     className: "fa-solid fa-circle-xmark"
-  }), " ", t('cancelSlot'))))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginBottom: 28
-    }
-  }, /*#__PURE__*/React.createElement("h3", {
-    style: {
-      fontFamily: 'Outfit,sans-serif',
-      fontWeight: 800,
-      fontSize: 18,
-      color: '#0f172a',
-      marginBottom: 14
-    }
-  }, t('quickFarmerServices')), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))',
-      gap: 14
-    }
-  }, [{
-    page: 'centreListing',
-    icon: 'fa-compass',
-    emoji: '🗺️',
-    bg: 'linear-gradient(135deg,#d1fae5,#a7f3d0)',
-    color: '#059669',
-    shadow: 'rgba(5,150,105,0.2)',
-    title: t('mandiDiscovery'),
-    desc: t('mandiDiscoveryDesc')
-  }, {
-    page: 'slotBooking',
-    icon: 'fa-calendar-check',
-    emoji: '📅',
-    bg: 'linear-gradient(135deg,#ccfbf1,#99f6e4)',
-    color: '#0d9488',
-    shadow: 'rgba(13,148,136,0.2)',
-    title: t('bookDeliverySlot'),
-    desc: t('bookDeliverySlotDesc')
-  }, {
-    page: 'liveQueue',
-    icon: 'fa-stopwatch',
-    emoji: '📡',
-    bg: 'linear-gradient(135deg,#fef3c7,#fde68a)',
-    color: '#d97706',
-    shadow: 'rgba(245,158,11,0.2)',
-    title: t('liveQueueTracker'),
-    desc: t('liveQueueTrackerDesc')
-  }, {
-    page: 'procurementStatus',
-    icon: 'fa-receipt',
-    emoji: '🏦',
-    bg: 'linear-gradient(135deg,#dbeafe,#bfdbfe)',
-    color: '#2563eb',
-    shadow: 'rgba(59,130,246,0.2)',
-    title: t('payoutReceipts'),
-    desc: t('payoutReceiptsDesc')
-  }].map((c, i) => /*#__PURE__*/React.createElement("div", {
-    key: i,
-    onClick: () => navigateTo(c.page),
-    style: {
-      background: 'white',
-      borderRadius: 16,
-      padding: '18px',
-      border: '1px solid rgba(0,0,0,0.06)',
-      boxShadow: '0 4px 16px rgba(0,0,0,0.05)',
-      cursor: 'pointer',
-      transition: 'all 0.25s',
-      position: 'relative',
-      overflow: 'hidden'
-    },
-    onMouseOver: e => Object.assign(e.currentTarget.style, {
-      transform: 'translateY(-4px)',
-      boxShadow: `0 14px 36px ${c.shadow}`
-    }),
-    onMouseOut: e => Object.assign(e.currentTarget.style, {
-      transform: 'translateY(0)',
-      boxShadow: '0 4px 16px rgba(0,0,0,0.05)'
-    })
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 48,
-      height: 48,
-      borderRadius: 13,
-      background: c.bg,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: 22,
-      marginBottom: 12,
-      boxShadow: `0 4px 14px ${c.shadow}`
-    }
-  }, c.emoji), /*#__PURE__*/React.createElement("h4", {
-    style: {
-      fontFamily: 'Outfit,sans-serif',
-      fontWeight: 800,
-      fontSize: 15,
-      color: '#0f172a',
-      margin: '0 0 5px'
-    }
-  }, c.title), /*#__PURE__*/React.createElement("p", {
-    style: {
-      fontSize: 12,
-      color: '#64748b',
-      margin: '0 0 12px',
-      lineHeight: 1.6
-    }
-  }, c.desc), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 12,
-      fontWeight: 700,
-      color: c.color,
-      display: 'flex',
-      alignItems: 'center',
-      gap: 4
-    }
-  }, t('open'), " ", /*#__PURE__*/React.createElement("i", {
-    className: "fa-solid fa-chevron-right",
-    style: {
-      fontSize: 10
-    }
-  })))))), pastBookings.length > 0 && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+  }), t('cancelSlot'))))), pastBookings.length > 0 && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
     style: {
       fontFamily: 'Outfit,sans-serif',
       fontWeight: 800,
