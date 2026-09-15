@@ -1,292 +1,889 @@
-// Page 5: Procurement Centre Listing Component — Visual Demonstration Theme
+// Centre Listing - KisanSeva
+// Same card interface for every procurement centre
 
-window.CentreListing = function CentreListing({ navigateTo, centres, onSelectCentre, userLocation }) {
-  const list = centres || (window.DEMO_DATA && window.DEMO_DATA.centres) || [];
-  const [selectedCrop, setSelectedCrop] = React.useState('ALL');
-  const [selectedDistrict, setSelectedDistrict] = React.useState('ALL');
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [maxDistance, setMaxDistance] = React.useState(50);
-  const [sortBy, setSortBy] = React.useState('DISTANCE');
+window.CentreListing = function CentreListing({
+  navigateTo,
+  onSelectCentre,
+  user
+}) {
 
-  // Available districts from current dataset
-  const districtsList = React.useMemo(() => {
-    const set = new Set(list.map(c => c.district));
-    return Array.from(set).sort();
-  }, [list]);
+ const [allCentres, setAllCentres] = React.useState([]);
 
-  const filteredCentres = React.useMemo(() => {
-    let c = list.filter(item => {
-      if (item.distanceKm > maxDistance) return false;
-      if (selectedCrop !== 'ALL' && !item.supportedCrops.some(crop => crop.includes(selectedCrop))) return false;
-      if (selectedDistrict !== 'ALL' && item.district !== selectedDistrict) return false;
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase().trim();
-        const matchName = item.name.toLowerCase().includes(q);
-        const matchDistrict = item.district.toLowerCase().includes(q);
-        const matchAddress = item.address.toLowerCase().includes(q);
-        if (!matchName && !matchDistrict && !matchAddress) return false;
-      }
-      return true;
-    });
+  const [searchText, setSearchText] = React.useState('');
+  const [selectedDistrict, setSelectedDistrict] =
+    React.useState('All Districts');
 
-    if (sortBy === 'WAIT_TIME') {
-      c.sort((a, b) => (a.activeQueueLength * a.avgProcessingMins) - (b.activeQueueLength * b.avgProcessingMins));
-    } else if (sortBy === 'DISTANCE') {
-      c.sort((a, b) => a.distanceKm - b.distanceKm);
-    } else if (sortBy === 'CAPACITY') {
-      c.sort((a, b) => (a.currentLoadQuintals / a.maxCapacityQuintals) - (b.currentLoadQuintals / b.maxCapacityQuintals));
+  const [sortMode, setSortMode] =
+    React.useState('nearest');
+
+  const [location, setLocation] =
+    React.useState(null);
+
+  const [locationStatus, setLocationStatus] =
+    React.useState('');
+  const [liveCentres, setLiveCentres] = React.useState([]);
+
+  // ---------------------------------------------------------
+  // GET FARMER LOCATION
+  // ---------------------------------------------------------
+
+  React.useEffect(() => {
+
+    if (!navigator.geolocation) {
+      setLocationStatus('Location not supported');
+      return;
     }
-    return c;
-  }, [list, selectedCrop, selectedDistrict, searchQuery, maxDistance, sortBy]);
+
+    navigator.geolocation.getCurrentPosition(
+
+      (position) => {
+
+        setLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        });
+
+        setLocationStatus('');
+      },
+
+      () => {
+        setLocationStatus(
+          'Using saved centre distances'
+        );
+      },
+
+      {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 60000
+      }
+
+    );
+
+  }, []);
+    // ---------------------------------------------------------
+  // LOAD LIVE PROCUREMENT CENTRE DATA
+  // ---------------------------------------------------------
+
+  React.useEffect(() => {
+
+    const loadCentres = async () => {
+
+      try {
+
+       const response = await fetch(
+  location
+    ? `/api/centres/recommend?lat=${encodeURIComponent(location.lat)}&lng=${encodeURIComponent(location.lng)}&max_distance=1000`
+    : '/api/centres/recommend?max_distance=1000'
+);
+
+        if (!response.ok) {
+          throw new Error('Failed to load centres');
+        }
+
+        const data = await response.json();
+
+        if (Array.isArray(data.recommended)) {
+          setAllCentres(data.recommended);
+          setLiveCentres(data.recommended);
+        }
+
+      } catch (error) {
+
+        console.error('Centre loading error:', error);
+
+        // Keep existing demo data as fallback
+      }
+
+    };
+
+    loadCentres();
+
+  }, [location]);
+
+  // ---------------------------------------------------------
+  // HAVERSINE DISTANCE
+  // ---------------------------------------------------------
+
+  const calculateDistance = (
+    lat1,
+    lon1,
+    lat2,
+    lon2
+  ) => {
+
+    const R = 6371;
+
+    const dLat =
+      (lat2 - lat1) * Math.PI / 180;
+
+    const dLon =
+      (lon2 - lon1) * Math.PI / 180;
+
+    const a =
+      Math.sin(dLat / 2) *
+      Math.sin(dLat / 2) +
+
+      Math.cos(lat1 * Math.PI / 180) *
+      Math.cos(lat2 * Math.PI / 180) *
+
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+    const c =
+      2 *
+      Math.atan2(
+        Math.sqrt(a),
+        Math.sqrt(1 - a)
+      );
+
+    return R * c;
+  };
+
+
+  // ---------------------------------------------------------
+// ANDHRA PRADESH DISTRICTS
+// ---------------------------------------------------------
+
+const districts = [
+  'All Districts',
+  'Alluri Sitharama Raju',
+  'Anakapalli',
+  'Ananthapuramu',
+  'Annamayya',
+  'Bapatla',
+  'Chittoor',
+  'East Godavari',
+  'Eluru',
+  'Guntur',
+  'Kakinada',
+  'Konaseema',
+  'Krishna',
+  'Kurnool',
+  'Nandyal',
+  'N.T.R',
+  'Palnadu',
+  'Parvathipuram Manyam',
+  'Prakasam',
+  'Sri Sathyasai',
+  'SPS Nellore',
+  'Srikakulam',
+  'Tirupati',
+  'Visakhapatnam',
+  'Vizianagaram',
+  'West Godavari',
+  'YSR Kadapa'
+];
+
+  // ---------------------------------------------------------
+  // PREPARE CENTRE DATA
+  // ---------------------------------------------------------
+
+const preparedCentres =
+  allCentres
+
+    .filter(
+      centre =>
+        centre.state === 'Andhra Pradesh'
+    )
+
+    .map(
+      centre => {
+
+        const liveCentre =
+          liveCentres.find(
+            item =>
+              String(item.id) ===
+              String(centre.id)
+          );
+
+        let distance =
+          Number(
+            centre.distanceKm || 0
+          );
+
+        if (
+          location &&
+          centre.lat &&
+          centre.lng
+        ) {
+
+          distance =
+            calculateDistance(
+              location.lat,
+              location.lng,
+              Number(centre.lat),
+              Number(centre.lng)
+            );
+        }
+
+        const queue =
+          liveCentre &&
+          liveCentre.active_queue_length !== undefined
+            ? Number(
+                liveCentre.active_queue_length
+              )
+            : 0;
+
+        const waitTime =
+          liveCentre &&
+          liveCentre.est_wait_mins !== undefined
+            ? Number(
+                liveCentre.est_wait_mins
+              )
+            : 0;
+
+        const capacityPercent =
+          liveCentre &&
+          liveCentre.capacity_pct !== undefined
+            ? Number(
+                liveCentre.capacity_pct
+              )
+            : 0;
+
+        let tag = 'STANDARD';
+
+        if (capacityPercent < 35) {
+          tag = 'HIGH CAPACITY';
+        }
+        else if (queue === 0) {
+          tag = 'ZERO QUEUE';
+        }
+        else if (waitTime <= 15) {
+          tag = 'FAST PROCESSING';
+        }
+
+        return {
+          ...centre,
+
+          ...(liveCentre || {}),
+
+          displayDistance:
+            Number(
+              distance.toFixed(1)
+            ),
+
+          displayQueue:
+            queue,
+
+          displayWait:
+            waitTime,
+
+          displayCapacity:
+            Math.round(
+              capacityPercent
+            ),
+
+          displayTag:
+            liveCentre?.tag ||
+            centre.tag ||
+            tag
+        };
+      }
+    );
+
+  // ---------------------------------------------------------
+  // FILTER + SEARCH
+  // ---------------------------------------------------------
+
+  let filteredCentres =
+    preparedCentres.filter(
+      centre => {
+
+        const matchesDistrict =
+          selectedDistrict === 'All Districts' ||
+          centre.district === selectedDistrict;
+
+        const search =
+          searchText
+            .trim()
+            .toLowerCase();
+
+        const matchesSearch =
+          !search ||
+
+          centre.name
+            .toLowerCase()
+            .includes(search) ||
+
+          centre.district
+            .toLowerCase()
+            .includes(search) ||
+
+          centre.address
+            .toLowerCase()
+            .includes(search);
+
+        return (
+          matchesDistrict &&
+          matchesSearch
+        );
+      }
+    );
+
+
+  // ---------------------------------------------------------
+  // SORT
+  // ---------------------------------------------------------
+
+  filteredCentres =
+    [...filteredCentres].sort(
+      (a, b) => {
+
+        if (sortMode === 'nearest') {
+          return (
+            a.displayDistance -
+            b.displayDistance
+          );
+        }
+
+        if (sortMode === 'queue') {
+          return (
+            a.displayQueue -
+            b.displayQueue
+          );
+        }
+
+        if (sortMode === 'capacity') {
+          return (
+            a.displayCapacity -
+            b.displayCapacity
+          );
+        }
+
+        return 0;
+      }
+    );
+
+
+  // ---------------------------------------------------------
+  // BOOK SLOT
+  // ---------------------------------------------------------
+
+  const handleBookSlot = (centre) => {
+
+    if (onSelectCentre) {
+      onSelectCentre(centre);
+    }
+
+    navigateTo('slotBooking');
+  };
+
+
+  // ---------------------------------------------------------
+  // CAPACITY BAR COLOR
+  // ---------------------------------------------------------
+
+  const getCapacityColor =
+    (percentage) => {
+
+      if (percentage >= 80) {
+        return 'bg-red-500';
+      }
+
+      if (percentage >= 60) {
+        return 'bg-amber-500';
+      }
+
+      return 'bg-emerald-500';
+    };
+
+
+  // ---------------------------------------------------------
+  // STATUS
+  // ---------------------------------------------------------
+
+  const getStatusText =
+    (status) => {
+
+      if (
+        status === 'ACTIVE' ||
+        status === 'OPEN'
+      ) {
+        return 'OPEN';
+      }
+
+      return 'CLOSED';
+    };
+
+
+  // ---------------------------------------------------------
+  // UI
+  // ---------------------------------------------------------
 
   return (
-    <div className="space-y-6 pb-12 animate-fade-in">
-      
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-serif flex items-center gap-2">
-            <i className="fa-solid fa-compass text-emerald-600 dark:text-emerald-400"></i> Smart Procurement Centre Discovery
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-1">
-            Locate government mandi yards nearby in West Godavari, Eluru, Guntur, and all districts of AP & Telangana.
-          </p>
-        </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> {filteredCentres.length} Mandis Available
-          </span>
-        </div>
-      </div>
+    <div className="space-y-6 pb-12">
 
-      {/* Filter Controls Panel */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl shadow-md space-y-4">
-        
-        {/* Top Search Bar */}
-        <div className="relative">
-          <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by town or district (e.g. Bhimavaram, West Godavari, Eluru, Tanuku, Guntur...)"
-            className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500 font-medium"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600"
-            >
-              Clear
-            </button>
-          )}
-        </div>
+      {/* HEADER */}
 
-        {/* Quick District Filter Chips */}
-        <div className="flex items-center gap-2 flex-wrap pt-1 border-t border-slate-100 dark:border-slate-800">
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 mr-1">Quick Select District:</span>
-          {['ALL', 'West Godavari', 'Eluru', 'Guntur', 'NTR (Vijayawada)', 'Kakinada'].map(dist => (
-            <button
-              key={dist}
-              onClick={() => setSelectedDistrict(dist)}
-              className={`px-3 py-1 rounded-xl text-xs font-semibold border transition ${
-                selectedDistrict === dist
-                  ? 'bg-emerald-600 text-white border-emerald-700 shadow'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-emerald-50'
-              }`}
-            >
-              {dist === 'ALL' ? '🌾 All Districts' : dist}
-            </button>
-          ))}
-        </div>
+      <div>
 
-        {/* Filter Dropdowns Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
-          
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              <i className="fa-solid fa-map-location-dot text-emerald-500 mr-1"></i>Filter District
-            </label>
-            <select
-              value={selectedDistrict}
-              onChange={(e) => setSelectedDistrict(e.target.value)}
-              className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-emerald-500"
-            >
-              <option value="ALL">📍 All Districts ({list.length})</option>
-              {districtsList.map(d => (
-                <option key={d} value={d}>📍 {d}</option>
-              ))}
-            </select>
-          </div>
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              <i className="fa-solid fa-seedling text-emerald-500 mr-1"></i>Filter Crop Type
-            </label>
-            <select
-              value={selectedCrop}
-              onChange={(e) => setSelectedCrop(e.target.value)}
-              className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-emerald-500"
-            >
-              <option value="ALL">🌾 All Supported Crops</option>
-              <option value="Paddy">🌾 Paddy (Grade A & Common)</option>
-              <option value="Wheat">🌾 Wheat</option>
-              <option value="Cotton">🌱 Cotton</option>
-              <option value="Maize">🌽 Maize</option>
-              <option value="Sugarcane">🎋 Sugarcane</option>
-              <option value="Pulses">🫘 Pulses (Red Gram/Tur)</option>
-            </select>
-          </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                <i className="fa-solid fa-route text-teal-500 mr-1"></i>Max Distance
-              </label>
-              <span className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">
-                {maxDistance} km
+            <div className="flex items-center gap-2 mb-2">
+
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+
+                <i className="fa-solid fa-location-dot"></i>
+
+              </div>
+
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
+                Andhra Pradesh
               </span>
+
             </div>
-            <input
-              type="range"
-              min="5"
-              max="500"
-              step="5"
-              value={maxDistance}
-              onChange={(e) => setMaxDistance(Number(e.target.value))}
-              className="w-full accent-emerald-500 cursor-pointer mt-1"
-            />
+
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-serif">
+              Procurement Centres
+            </h1>
+
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Find nearby agricultural procurement centres and book your slot.
+            </p>
+
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              <i className="fa-solid fa-arrow-down-short-wide text-amber-500 mr-1"></i>Sort Ranking
-            </label>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-emerald-500"
-            >
-              <option value="DISTANCE">📍 Nearest First</option>
-              <option value="RECOMMENDED">⚡ Smart Recommendation</option>
-              <option value="WAIT_TIME">⏱️ Lowest Wait Time</option>
-              <option value="CAPACITY">📊 Most Available Capacity</option>
-            </select>
+          <div className="text-sm font-semibold text-slate-500">
+
+            {filteredCentres.length}
+            {' '}
+            Centres
+
           </div>
 
         </div>
 
       </div>
 
-      {/* Procurement Centres Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {filteredCentres.length === 0 ? (
-          <div className="col-span-full py-16 text-center text-slate-500 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <i className="fa-solid fa-map-location-dot text-4xl text-slate-400 mb-2 block"></i>
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">No procurement centres found matching your search or filters.</p>
-            <p className="text-xs text-slate-500 mt-1">Try selecting "All Districts" or clearing the crop filter.</p>
-            <button
-              onClick={() => { setSelectedDistrict('ALL'); setSelectedCrop('ALL'); setSearchQuery(''); setMaxDistance(100); }}
-              className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-md hover:bg-emerald-700 transition"
-            >
-              Reset Filters
-            </button>
+
+      {/* STATE + SEARCH */}
+
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-sm">
+
+        <div className="grid grid-cols-1 md:grid-cols-[180px_1fr_180px] gap-3">
+
+          {/* STATE */}
+
+          <div>
+
+            <label className="text-[11px] font-bold text-slate-500 uppercase">
+              State
+            </label>
+
+            <div className="mt-1 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-semibold text-sm">
+
+              Andhra Pradesh
+
+            </div>
+
           </div>
-        ) : filteredCentres.map((centre) => {
-          const waitMins = (centre.activeQueueLength || 0) * (centre.avgProcessingMins || 10);
-          const capPct = Math.round(((centre.currentLoadQuintals || 0) / (centre.maxCapacityQuintals || 1000)) * 100);
-          return (
-            <div key={centre.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-500 rounded-3xl p-6 shadow-md space-y-5 transition flex flex-col justify-between">
-              
-              <div className="space-y-3">
-                
-                {/* Tag & Distance Badge */}
-                <div className="flex items-center justify-between gap-2">
-                  <span className="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 text-[11px] font-extrabold">
-                    {centre.tag || 'ACTIVE MANDI'}
+
+
+          {/* SEARCH */}
+
+          <div>
+
+            <label className="text-[11px] font-bold text-slate-500 uppercase">
+              Search
+            </label>
+
+            <div className="relative mt-1">
+
+              <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+
+              <input
+                type="text"
+                value={searchText}
+                onChange={
+                  e =>
+                    setSearchText(
+                      e.target.value
+                    )
+                }
+                placeholder="Search centre, district or address..."
+                className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+              />
+
+            </div>
+
+          </div>
+
+
+          {/* SORT */}
+
+          <div>
+
+            <label className="text-[11px] font-bold text-slate-500 uppercase">
+              Sort
+            </label>
+
+            <select
+              value={sortMode}
+              onChange={
+                e =>
+                  setSortMode(
+                    e.target.value
+                  )
+              }
+              className="w-full mt-1 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-semibold outline-none"
+            >
+
+              <option value="nearest">
+                Nearest First
+              </option>
+
+              <option value="queue">
+                Lowest Queue
+              </option>
+
+              <option value="capacity">
+                Highest Capacity
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        {/* LOCATION STATUS */}
+
+        {locationStatus && (
+
+          <div className="mt-3 text-xs text-slate-500">
+
+            <i className="fa-solid fa-circle-info mr-1"></i>
+
+            {locationStatus}
+
+          </div>
+
+        )}
+
+      </div>
+
+
+      {/* DISTRICT CHIPS */}
+
+      <div className="flex gap-2 overflow-x-auto pb-1">
+
+        {districts.map(
+          district => (
+
+            <button
+              key={district}
+              onClick={() =>
+                setSelectedDistrict(
+                  district
+                )
+              }
+              className={
+                `whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold border transition ${
+                  selectedDistrict === district
+                    ? 'bg-emerald-600 text-white border-emerald-600'
+                    : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-emerald-400'
+                }`
+              }
+            >
+
+              {district}
+
+            </button>
+
+          )
+        )}
+
+      </div>
+
+
+      {/* CENTRE CARDS */}
+
+      <div className="space-y-5">
+
+        {filteredCentres.map(
+          centre => (
+
+            <div
+              key={centre.id}
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-lg transition"
+            >
+
+              {/* TOP ROW */}
+
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+
+                <div className="flex flex-wrap items-center gap-2">
+
+                  <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-extrabold tracking-wide">
+
+                    {centre.displayTag}
+
                   </span>
-                  <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
-                    📍 {centre.distanceKm} km
+
+                  <span className="text-xs font-bold text-slate-500">
+
+                    {centre.displayDistance} km
+
                   </span>
+
                 </div>
 
-                {/* Title & Location */}
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white font-serif">{centre.name}</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
-                    <i className="fa-solid fa-location-dot text-slate-400"></i>
-                    <span>{centre.address}</span>
-                  </p>
-                  <span className="inline-block mt-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
-                    District: {centre.district}
-                  </span>
-                </div>
 
-                {/* Queue & Capacity Metrics */}
-                <div className="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-950/70 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 text-center">
-                  <div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">Queue</div>
-                    <div className="text-sm font-bold text-amber-600 dark:text-amber-400 font-mono mt-0.5">{centre.activeQueueLength || 0} Farmers</div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">Wait Time</div>
-                    <div className="text-sm font-bold text-emerald-600 dark:text-emerald-400 font-mono mt-0.5">{waitMins} Mins</div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">Capacity Load</div>
-                    <div className="text-sm font-bold text-teal-600 dark:text-teal-400 font-mono mt-0.5">{capPct}%</div>
-                  </div>
-                </div>
+                <span
+                  className={
+                    `inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-extrabold ${
+                      getStatusText(centre.status) === 'OPEN'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-red-100 text-red-700'
+                    }`
+                  }
+                >
 
-                {/* Capacity Progress Bar */}
-                <div className="space-y-1">
-                  <div className="flex justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                    <span>Capacity Load</span>
-                    <span className="font-mono">{centre.currentLoadQuintals} / {centre.maxCapacityQuintals} Qtl</span>
-                  </div>
-                  <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all ${capPct > 80 ? 'bg-red-500' : capPct > 50 ? 'bg-amber-400' : 'bg-emerald-500'}`}
-                      style={{ width: `${capPct}%` }}
-                    ></div>
-                  </div>
-                </div>
+                  <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
 
-                {/* Supported Crops Badges */}
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {(centre.supportedCrops || []).map((crop, idx) => (
-                    <span key={idx} className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700 font-medium">
-                      {crop}
-                    </span>
-                  ))}
+                  {getStatusText(
+                    centre.status
+                  )}
+
+                </span>
+
+              </div>
+
+
+              {/* NAME */}
+
+              <div className="mt-4">
+
+                <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">
+
+                  {centre.name}
+
+                </h2>
+
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+
+                  <i className="fa-solid fa-location-dot mr-1"></i>
+
+                  {centre.address}
+
+                </p>
+
+                <div className="mt-2 inline-flex px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300">
+
+                  District: {centre.district}
+
                 </div>
 
               </div>
 
-              {/* Action Button */}
-              <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                <div className="text-xs text-slate-500 dark:text-slate-400">
-                  <i className="fa-solid fa-clock mr-1 text-slate-400"></i>
-                  {centre.operatingHours || '07:00 AM - 06:00 PM'}
+
+              {/* STATS */}
+
+              <div className="grid grid-cols-3 gap-3 mt-5">
+
+                <div className="rounded-2xl bg-slate-50 dark:bg-slate-800 p-4">
+
+                  <div className="text-[10px] uppercase font-bold text-slate-400">
+                    Queue
+                  </div>
+
+                  <div className="text-xl font-extrabold text-slate-900 dark:text-white mt-1">
+                    {centre.displayQueue}
+                  </div>
+
+                  <div className="text-[10px] text-slate-500">
+                    Farmers
+                  </div>
+
                 </div>
+
+
+                <div className="rounded-2xl bg-slate-50 dark:bg-slate-800 p-4">
+
+                  <div className="text-[10px] uppercase font-bold text-slate-400">
+                    Wait Time
+                  </div>
+
+                  <div className="text-xl font-extrabold text-slate-900 dark:text-white mt-1">
+                    {centre.displayWait}
+                  </div>
+
+                  <div className="text-[10px] text-slate-500">
+                    Minutes
+                  </div>
+
+                </div>
+
+
+                <div className="rounded-2xl bg-slate-50 dark:bg-slate-800 p-4">
+
+                  <div className="text-[10px] uppercase font-bold text-slate-400">
+                    Capacity
+                  </div>
+
+                  <div className="text-xl font-extrabold text-slate-900 dark:text-white mt-1">
+                    {centre.displayCapacity}%
+                  </div>
+
+                  <div className="text-[10px] text-slate-500">
+                    Load
+                  </div>
+
+                </div>
+
+              </div>
+
+
+              {/* CAPACITY */}
+
+              <div className="mt-5">
+
+                <div className="flex items-center justify-between text-xs font-bold mb-2">
+
+                  <span className="text-slate-500">
+                    Capacity Load
+                  </span>
+
+                  <span className="text-slate-700 dark:text-slate-300">
+
+                    {centre.currentLoadQuintals}
+                    {' / '}
+                    {centre.maxCapacityQuintals}
+                    {' Qt'}
+
+                  </span>
+
+                </div>
+
+                <div className="w-full h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+
+                  <div
+                    className={
+                      `h-full rounded-full ${getCapacityColor(
+                        centre.displayCapacity
+                      )}`
+                    }
+                    style={{
+                      width:
+                        `${Math.min(
+                          centre.displayCapacity,
+                          100
+                        )}%`
+                    }}
+                  ></div>
+
+                </div>
+
+              </div>
+
+
+              {/* CROPS */}
+
+              <div className="mt-5">
+
+                <div className="text-[10px] font-bold uppercase text-slate-400 mb-2">
+                  Supported Crops
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+
+                  {(
+                    centre.supportedCrops ||
+                    []
+                  ).map(
+                    crop => (
+
+                      <span
+                        key={crop}
+                        className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-100"
+                      >
+                        {crop}
+                      </span>
+
+                    )
+                  )}
+
+                </div>
+
+              </div>
+
+
+              {/* FOOTER */}
+
+              <div className="mt-5 pt-5 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+                <div className="text-sm text-slate-500">
+
+                  <i className="fa-regular fa-clock mr-1"></i>
+
+                  <span className="font-semibold">
+                    Operating Hours:
+                  </span>
+
+                  {' '}
+
+                  {centre.operatingHours}
+
+                </div>
+
+
                 <button
-                  onClick={() => {
-                    if (onSelectCentre) onSelectCentre(centre);
-                    if (navigateTo) navigateTo('slotBooking');
-                  }}
-                  className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs shadow-md transition flex items-center gap-1.5"
+                  onClick={() =>
+                    handleBookSlot(
+                      centre
+                    )
+                  }
+                  disabled={
+                    getStatusText(
+                      centre.status
+                    ) !== 'OPEN'
+                  }
+                  className="px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-sm font-extrabold transition"
                 >
-                  <span>Book Slot Here</span>
-                  <i className="fa-solid fa-arrow-right text-[10px]"></i>
+
+                  Book Slot Here
+                  <i className="fa-solid fa-arrow-right ml-2"></i>
+
                 </button>
+
               </div>
 
             </div>
-          );
-        })}
+
+          )
+        )}
+
       </div>
+
+
+      {/* EMPTY STATE */}
+
+      {filteredCentres.length === 0 && (
+
+        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">
+
+          <div className="text-4xl mb-3">
+            🔎
+          </div>
+
+          <h3 className="font-bold text-lg text-slate-900 dark:text-white">
+            No procurement centres found
+          </h3>
+
+          <p className="text-sm text-slate-500 mt-1">
+            Try another district or search term.
+          </p>
+
+        </div>
+
+      )}
 
     </div>
+
   );
 };

@@ -3572,245 +3572,349 @@ window.FarmerDashboard = function FarmerDashboard({
 };
 
 /* --- static/js/pages/CentreListing.jsx --- */
-// Page 5: Procurement Centre Listing Component — Visual Demonstration Theme
+// Centre Listing - KisanSeva
+// Same card interface for every procurement centre
 
 window.CentreListing = function CentreListing({
   navigateTo,
-  centres,
   onSelectCentre,
-  userLocation
+  user
 }) {
-  const list = centres || window.DEMO_DATA && window.DEMO_DATA.centres || [];
-  const [selectedCrop, setSelectedCrop] = React.useState('ALL');
-  const [selectedDistrict, setSelectedDistrict] = React.useState('ALL');
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [maxDistance, setMaxDistance] = React.useState(50);
-  const [sortBy, setSortBy] = React.useState('DISTANCE');
+  const [allCentres, setAllCentres] = React.useState([]);
+  const [searchText, setSearchText] = React.useState('');
+  const [selectedDistrict, setSelectedDistrict] = React.useState('All Districts');
+  const [sortMode, setSortMode] = React.useState('nearest');
+  const [location, setLocation] = React.useState(null);
+  const [locationStatus, setLocationStatus] = React.useState('');
+  const [liveCentres, setLiveCentres] = React.useState([]);
 
-  // Available districts from current dataset
-  const districtsList = React.useMemo(() => {
-    const set = new Set(list.map(c => c.district));
-    return Array.from(set).sort();
-  }, [list]);
-  const filteredCentres = React.useMemo(() => {
-    let c = list.filter(item => {
-      if (item.distanceKm > maxDistance) return false;
-      if (selectedCrop !== 'ALL' && !item.supportedCrops.some(crop => crop.includes(selectedCrop))) return false;
-      if (selectedDistrict !== 'ALL' && item.district !== selectedDistrict) return false;
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase().trim();
-        const matchName = item.name.toLowerCase().includes(q);
-        const matchDistrict = item.district.toLowerCase().includes(q);
-        const matchAddress = item.address.toLowerCase().includes(q);
-        if (!matchName && !matchDistrict && !matchAddress) return false;
-      }
-      return true;
-    });
-    if (sortBy === 'WAIT_TIME') {
-      c.sort((a, b) => a.activeQueueLength * a.avgProcessingMins - b.activeQueueLength * b.avgProcessingMins);
-    } else if (sortBy === 'DISTANCE') {
-      c.sort((a, b) => a.distanceKm - b.distanceKm);
-    } else if (sortBy === 'CAPACITY') {
-      c.sort((a, b) => a.currentLoadQuintals / a.maxCapacityQuintals - b.currentLoadQuintals / b.maxCapacityQuintals);
+  // ---------------------------------------------------------
+  // GET FARMER LOCATION
+  // ---------------------------------------------------------
+
+  React.useEffect(() => {
+    if (!navigator.geolocation) {
+      setLocationStatus('Location not supported');
+      return;
     }
-    return c;
-  }, [list, selectedCrop, selectedDistrict, searchQuery, maxDistance, sortBy]);
+    navigator.geolocation.getCurrentPosition(position => {
+      setLocation({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      });
+      setLocationStatus('');
+    }, () => {
+      setLocationStatus('Using saved centre distances');
+    }, {
+      enableHighAccuracy: false,
+      timeout: 10000,
+      maximumAge: 60000
+    });
+  }, []);
+  // ---------------------------------------------------------
+  // LOAD LIVE PROCUREMENT CENTRE DATA
+  // ---------------------------------------------------------
+
+  React.useEffect(() => {
+    const loadCentres = async () => {
+      try {
+        const response = await fetch(location ? `/api/centres/recommend?lat=${encodeURIComponent(location.lat)}&lng=${encodeURIComponent(location.lng)}&max_distance=1000` : '/api/centres/recommend?max_distance=1000');
+        if (!response.ok) {
+          throw new Error('Failed to load centres');
+        }
+        const data = await response.json();
+        if (Array.isArray(data.recommended)) {
+          setAllCentres(data.recommended);
+          setLiveCentres(data.recommended);
+        }
+      } catch (error) {
+        console.error('Centre loading error:', error);
+
+        // Keep existing demo data as fallback
+      }
+    };
+    loadCentres();
+  }, [location]);
+
+  // ---------------------------------------------------------
+  // HAVERSINE DISTANCE
+  // ---------------------------------------------------------
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  // ---------------------------------------------------------
+  // ANDHRA PRADESH DISTRICTS
+  // ---------------------------------------------------------
+
+  const districts = ['All Districts', 'Alluri Sitharama Raju', 'Anakapalli', 'Ananthapuramu', 'Annamayya', 'Bapatla', 'Chittoor', 'East Godavari', 'Eluru', 'Guntur', 'Kakinada', 'Konaseema', 'Krishna', 'Kurnool', 'Nandyal', 'N.T.R', 'Palnadu', 'Parvathipuram Manyam', 'Prakasam', 'Sri Sathyasai', 'SPS Nellore', 'Srikakulam', 'Tirupati', 'Visakhapatnam', 'Vizianagaram', 'West Godavari', 'YSR Kadapa'];
+
+  // ---------------------------------------------------------
+  // PREPARE CENTRE DATA
+  // ---------------------------------------------------------
+
+  const preparedCentres = allCentres.filter(centre => centre.state === 'Andhra Pradesh').map(centre => {
+    const liveCentre = liveCentres.find(item => String(item.id) === String(centre.id));
+    let distance = Number(centre.distanceKm || 0);
+    if (location && centre.lat && centre.lng) {
+      distance = calculateDistance(location.lat, location.lng, Number(centre.lat), Number(centre.lng));
+    }
+    const queue = liveCentre && liveCentre.active_queue_length !== undefined ? Number(liveCentre.active_queue_length) : 0;
+    const waitTime = liveCentre && liveCentre.est_wait_mins !== undefined ? Number(liveCentre.est_wait_mins) : 0;
+    const capacityPercent = liveCentre && liveCentre.capacity_pct !== undefined ? Number(liveCentre.capacity_pct) : 0;
+    let tag = 'STANDARD';
+    if (capacityPercent < 35) {
+      tag = 'HIGH CAPACITY';
+    } else if (queue === 0) {
+      tag = 'ZERO QUEUE';
+    } else if (waitTime <= 15) {
+      tag = 'FAST PROCESSING';
+    }
+    return {
+      ...centre,
+      ...(liveCentre || {}),
+      displayDistance: Number(distance.toFixed(1)),
+      displayQueue: queue,
+      displayWait: waitTime,
+      displayCapacity: Math.round(capacityPercent),
+      displayTag: liveCentre?.tag || centre.tag || tag
+    };
+  });
+
+  // ---------------------------------------------------------
+  // FILTER + SEARCH
+  // ---------------------------------------------------------
+
+  let filteredCentres = preparedCentres.filter(centre => {
+    const matchesDistrict = selectedDistrict === 'All Districts' || centre.district === selectedDistrict;
+    const search = searchText.trim().toLowerCase();
+    const matchesSearch = !search || centre.name.toLowerCase().includes(search) || centre.district.toLowerCase().includes(search) || centre.address.toLowerCase().includes(search);
+    return matchesDistrict && matchesSearch;
+  });
+
+  // ---------------------------------------------------------
+  // SORT
+  // ---------------------------------------------------------
+
+  filteredCentres = [...filteredCentres].sort((a, b) => {
+    if (sortMode === 'nearest') {
+      return a.displayDistance - b.displayDistance;
+    }
+    if (sortMode === 'queue') {
+      return a.displayQueue - b.displayQueue;
+    }
+    if (sortMode === 'capacity') {
+      return a.displayCapacity - b.displayCapacity;
+    }
+    return 0;
+  });
+
+  // ---------------------------------------------------------
+  // BOOK SLOT
+  // ---------------------------------------------------------
+
+  const handleBookSlot = centre => {
+    if (onSelectCentre) {
+      onSelectCentre(centre);
+    }
+    navigateTo('slotBooking');
+  };
+
+  // ---------------------------------------------------------
+  // CAPACITY BAR COLOR
+  // ---------------------------------------------------------
+
+  const getCapacityColor = percentage => {
+    if (percentage >= 80) {
+      return 'bg-red-500';
+    }
+    if (percentage >= 60) {
+      return 'bg-amber-500';
+    }
+    return 'bg-emerald-500';
+  };
+
+  // ---------------------------------------------------------
+  // STATUS
+  // ---------------------------------------------------------
+
+  const getStatusText = status => {
+    if (status === 'ACTIVE' || status === 'OPEN') {
+      return 'OPEN';
+    }
+    return 'CLOSED';
+  };
+
+  // ---------------------------------------------------------
+  // UI
+  // ---------------------------------------------------------
+
   return /*#__PURE__*/React.createElement("div", {
-    className: "space-y-6 pb-12 animate-fade-in"
+    className: "space-y-6 pb-12"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 mb-2"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
-    className: "text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-serif flex items-center gap-2"
+    className: "w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center"
   }, /*#__PURE__*/React.createElement("i", {
-    className: "fa-solid fa-compass text-emerald-600 dark:text-emerald-400"
-  }), " Smart Procurement Centre Discovery"), /*#__PURE__*/React.createElement("p", {
-    className: "text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-1"
-  }, "Locate government mandi yards nearby in West Godavari, Eluru, Guntur, and all districts of AP & Telangana.")), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-2"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-xs bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "w-2 h-2 rounded-full bg-emerald-500 animate-pulse"
-  }), " ", filteredCentres.length, " Mandis Available"))), /*#__PURE__*/React.createElement("div", {
-    className: "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl shadow-md space-y-4"
+    className: "fa-solid fa-location-dot"
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-bold uppercase tracking-wider text-emerald-600"
+  }, "Andhra Pradesh")), /*#__PURE__*/React.createElement("h1", {
+    className: "text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-serif"
+  }, "Procurement Centres"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-500 dark:text-slate-400 mt-1"
+  }, "Find nearby agricultural procurement centres and book your slot.")), /*#__PURE__*/React.createElement("div", {
+    className: "text-sm font-semibold text-slate-500"
+  }, filteredCentres.length, ' ', "Centres"))), /*#__PURE__*/React.createElement("div", {
+    className: "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-sm"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "relative"
+    className: "grid grid-cols-1 md:grid-cols-[180px_1fr_180px] gap-3"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "text-[11px] font-bold text-slate-500 uppercase"
+  }, "State"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-semibold text-sm"
+  }, "Andhra Pradesh")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "text-[11px] font-bold text-slate-500 uppercase"
+  }, "Search"), /*#__PURE__*/React.createElement("div", {
+    className: "relative mt-1"
   }, /*#__PURE__*/React.createElement("i", {
-    className: "fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+    className: "fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
   }), /*#__PURE__*/React.createElement("input", {
     type: "text",
-    value: searchQuery,
-    onChange: e => setSearchQuery(e.target.value),
-    placeholder: "Search by town or district (e.g. Bhimavaram, West Godavari, Eluru, Tanuku, Guntur...)",
-    className: "w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500 font-medium"
-  }), searchQuery && /*#__PURE__*/React.createElement("button", {
-    onClick: () => setSearchQuery(''),
-    className: "absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600"
-  }, "Clear")), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-2 flex-wrap pt-1 border-t border-slate-100 dark:border-slate-800"
+    value: searchText,
+    onChange: e => setSearchText(e.target.value),
+    placeholder: "Search centre, district or address...",
+    className: "w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+  }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "text-[11px] font-bold text-slate-500 uppercase"
+  }, "Sort"), /*#__PURE__*/React.createElement("select", {
+    value: sortMode,
+    onChange: e => setSortMode(e.target.value),
+    className: "w-full mt-1 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-semibold outline-none"
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "nearest"
+  }, "Nearest First"), /*#__PURE__*/React.createElement("option", {
+    value: "queue"
+  }, "Lowest Queue"), /*#__PURE__*/React.createElement("option", {
+    value: "capacity"
+  }, "Highest Capacity")))), locationStatus && /*#__PURE__*/React.createElement("div", {
+    className: "mt-3 text-xs text-slate-500"
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "fa-solid fa-circle-info mr-1"
+  }), locationStatus)), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2 overflow-x-auto pb-1"
+  }, districts.map(district => /*#__PURE__*/React.createElement("button", {
+    key: district,
+    onClick: () => setSelectedDistrict(district),
+    className: `whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold border transition ${selectedDistrict === district ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-emerald-400'}`
+  }, district))), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-5"
+  }, filteredCentres.map(centre => /*#__PURE__*/React.createElement("div", {
+    key: centre.id,
+    className: "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-lg transition"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center gap-2"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "text-xs font-semibold text-slate-500 dark:text-slate-400 mr-1"
-  }, "Quick Select District:"), ['ALL', 'West Godavari', 'Eluru', 'Guntur', 'NTR (Vijayawada)', 'Kakinada'].map(dist => /*#__PURE__*/React.createElement("button", {
-    key: dist,
-    onClick: () => setSelectedDistrict(dist),
-    className: `px-3 py-1 rounded-xl text-xs font-semibold border transition ${selectedDistrict === dist ? 'bg-emerald-600 text-white border-emerald-700 shadow' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-emerald-50'}`
-  }, dist === 'ALL' ? '🌾 All Districts' : dist))), /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-1"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    className: "block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+    className: "px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-extrabold tracking-wide"
+  }, centre.displayTag), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-bold text-slate-500"
+  }, centre.displayDistance, " km")), /*#__PURE__*/React.createElement("span", {
+    className: `inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-extrabold ${getStatusText(centre.status) === 'OPEN' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "w-1.5 h-1.5 rounded-full bg-current"
+  }), getStatusText(centre.status))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4"
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "text-xl font-extrabold text-slate-900 dark:text-white"
+  }, centre.name), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-500 dark:text-slate-400 mt-1"
   }, /*#__PURE__*/React.createElement("i", {
-    className: "fa-solid fa-map-location-dot text-emerald-500 mr-1"
-  }), "Filter District"), /*#__PURE__*/React.createElement("select", {
-    value: selectedDistrict,
-    onChange: e => setSelectedDistrict(e.target.value),
-    className: "w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-emerald-500"
-  }, /*#__PURE__*/React.createElement("option", {
-    value: "ALL"
-  }, "\uD83D\uDCCD All Districts (", list.length, ")"), districtsList.map(d => /*#__PURE__*/React.createElement("option", {
-    key: d,
-    value: d
-  }, "\uD83D\uDCCD ", d)))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    className: "block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+    className: "fa-solid fa-location-dot mr-1"
+  }), centre.address), /*#__PURE__*/React.createElement("div", {
+    className: "mt-2 inline-flex px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300"
+  }, "District: ", centre.district)), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-3 gap-3 mt-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl bg-slate-50 dark:bg-slate-800 p-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] uppercase font-bold text-slate-400"
+  }, "Queue"), /*#__PURE__*/React.createElement("div", {
+    className: "text-xl font-extrabold text-slate-900 dark:text-white mt-1"
+  }, centre.displayQueue), /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] text-slate-500"
+  }, "Farmers")), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl bg-slate-50 dark:bg-slate-800 p-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] uppercase font-bold text-slate-400"
+  }, "Wait Time"), /*#__PURE__*/React.createElement("div", {
+    className: "text-xl font-extrabold text-slate-900 dark:text-white mt-1"
+  }, centre.displayWait), /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] text-slate-500"
+  }, "Minutes")), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl bg-slate-50 dark:bg-slate-800 p-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] uppercase font-bold text-slate-400"
+  }, "Capacity"), /*#__PURE__*/React.createElement("div", {
+    className: "text-xl font-extrabold text-slate-900 dark:text-white mt-1"
+  }, centre.displayCapacity, "%"), /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] text-slate-500"
+  }, "Load"))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between text-xs font-bold mb-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-slate-500"
+  }, "Capacity Load"), /*#__PURE__*/React.createElement("span", {
+    className: "text-slate-700 dark:text-slate-300"
+  }, centre.currentLoadQuintals, ' / ', centre.maxCapacityQuintals, ' Qt')), /*#__PURE__*/React.createElement("div", {
+    className: "w-full h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: `h-full rounded-full ${getCapacityColor(centre.displayCapacity)}`,
+    style: {
+      width: `${Math.min(centre.displayCapacity, 100)}%`
+    }
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] font-bold uppercase text-slate-400 mb-2"
+  }, "Supported Crops"), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap gap-2"
+  }, (centre.supportedCrops || []).map(crop => /*#__PURE__*/React.createElement("span", {
+    key: crop,
+    className: "px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-100"
+  }, crop)))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-5 pt-5 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-sm text-slate-500"
   }, /*#__PURE__*/React.createElement("i", {
-    className: "fa-solid fa-seedling text-emerald-500 mr-1"
-  }), "Filter Crop Type"), /*#__PURE__*/React.createElement("select", {
-    value: selectedCrop,
-    onChange: e => setSelectedCrop(e.target.value),
-    className: "w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-emerald-500"
-  }, /*#__PURE__*/React.createElement("option", {
-    value: "ALL"
-  }, "\uD83C\uDF3E All Supported Crops"), /*#__PURE__*/React.createElement("option", {
-    value: "Paddy"
-  }, "\uD83C\uDF3E Paddy (Grade A & Common)"), /*#__PURE__*/React.createElement("option", {
-    value: "Wheat"
-  }, "\uD83C\uDF3E Wheat"), /*#__PURE__*/React.createElement("option", {
-    value: "Cotton"
-  }, "\uD83C\uDF31 Cotton"), /*#__PURE__*/React.createElement("option", {
-    value: "Maize"
-  }, "\uD83C\uDF3D Maize"), /*#__PURE__*/React.createElement("option", {
-    value: "Sugarcane"
-  }, "\uD83C\uDF8B Sugarcane"), /*#__PURE__*/React.createElement("option", {
-    value: "Pulses"
-  }, "\uD83E\uDED8 Pulses (Red Gram/Tur)"))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center justify-between mb-1"
-  }, /*#__PURE__*/React.createElement("label", {
-    className: "text-xs font-semibold text-slate-700 dark:text-slate-300"
-  }, /*#__PURE__*/React.createElement("i", {
-    className: "fa-solid fa-route text-teal-500 mr-1"
-  }), "Max Distance"), /*#__PURE__*/React.createElement("span", {
-    className: "text-xs font-extrabold text-emerald-600 dark:text-emerald-400 font-mono"
-  }, maxDistance, " km")), /*#__PURE__*/React.createElement("input", {
-    type: "range",
-    min: "5",
-    max: "500",
-    step: "5",
-    value: maxDistance,
-    onChange: e => setMaxDistance(Number(e.target.value)),
-    className: "w-full accent-emerald-500 cursor-pointer mt-1"
-  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    className: "block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
-  }, /*#__PURE__*/React.createElement("i", {
-    className: "fa-solid fa-arrow-down-short-wide text-amber-500 mr-1"
-  }), "Sort Ranking"), /*#__PURE__*/React.createElement("select", {
-    value: sortBy,
-    onChange: e => setSortBy(e.target.value),
-    className: "w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-emerald-500"
-  }, /*#__PURE__*/React.createElement("option", {
-    value: "DISTANCE"
-  }, "\uD83D\uDCCD Nearest First"), /*#__PURE__*/React.createElement("option", {
-    value: "RECOMMENDED"
-  }, "\u26A1 Smart Recommendation"), /*#__PURE__*/React.createElement("option", {
-    value: "WAIT_TIME"
-  }, "\u23F1\uFE0F Lowest Wait Time"), /*#__PURE__*/React.createElement("option", {
-    value: "CAPACITY"
-  }, "\uD83D\uDCCA Most Available Capacity"))))), /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-1 md:grid-cols-2 gap-6"
-  }, filteredCentres.length === 0 ? /*#__PURE__*/React.createElement("div", {
-    className: "col-span-full py-16 text-center text-slate-500 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm"
-  }, /*#__PURE__*/React.createElement("i", {
-    className: "fa-solid fa-map-location-dot text-4xl text-slate-400 mb-2 block"
-  }), /*#__PURE__*/React.createElement("p", {
-    className: "text-sm font-semibold text-slate-700 dark:text-slate-300"
-  }, "No procurement centres found matching your search or filters."), /*#__PURE__*/React.createElement("p", {
-    className: "text-xs text-slate-500 mt-1"
-  }, "Try selecting \"All Districts\" or clearing the crop filter."), /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setSelectedDistrict('ALL');
-      setSelectedCrop('ALL');
-      setSearchQuery('');
-      setMaxDistance(100);
-    },
-    className: "mt-4 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-md hover:bg-emerald-700 transition"
-  }, "Reset Filters")) : filteredCentres.map(centre => {
-    const waitMins = (centre.activeQueueLength || 0) * (centre.avgProcessingMins || 10);
-    const capPct = Math.round((centre.currentLoadQuintals || 0) / (centre.maxCapacityQuintals || 1000) * 100);
-    return /*#__PURE__*/React.createElement("div", {
-      key: centre.id,
-      className: "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-500 rounded-3xl p-6 shadow-md space-y-5 transition flex flex-col justify-between"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "space-y-3"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "flex items-center justify-between gap-2"
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 text-[11px] font-extrabold"
-    }, centre.tag || 'ACTIVE MANDI'), /*#__PURE__*/React.createElement("span", {
-      className: "text-xs font-mono font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700"
-    }, "\uD83D\uDCCD ", centre.distanceKm, " km")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
-      className: "text-lg font-bold text-slate-900 dark:text-white font-serif"
-    }, centre.name), /*#__PURE__*/React.createElement("p", {
-      className: "text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1"
-    }, /*#__PURE__*/React.createElement("i", {
-      className: "fa-solid fa-location-dot text-slate-400"
-    }), /*#__PURE__*/React.createElement("span", null, centre.address)), /*#__PURE__*/React.createElement("span", {
-      className: "inline-block mt-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800"
-    }, "District: ", centre.district)), /*#__PURE__*/React.createElement("div", {
-      className: "grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-950/70 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 text-center"
-    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-      className: "text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold"
-    }, "Queue"), /*#__PURE__*/React.createElement("div", {
-      className: "text-sm font-bold text-amber-600 dark:text-amber-400 font-mono mt-0.5"
-    }, centre.activeQueueLength || 0, " Farmers")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-      className: "text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold"
-    }, "Wait Time"), /*#__PURE__*/React.createElement("div", {
-      className: "text-sm font-bold text-emerald-600 dark:text-emerald-400 font-mono mt-0.5"
-    }, waitMins, " Mins")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-      className: "text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold"
-    }, "Capacity Load"), /*#__PURE__*/React.createElement("div", {
-      className: "text-sm font-bold text-teal-600 dark:text-teal-400 font-mono mt-0.5"
-    }, capPct, "%"))), /*#__PURE__*/React.createElement("div", {
-      className: "space-y-1"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "flex justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium"
-    }, /*#__PURE__*/React.createElement("span", null, "Capacity Load"), /*#__PURE__*/React.createElement("span", {
-      className: "font-mono"
-    }, centre.currentLoadQuintals, " / ", centre.maxCapacityQuintals, " Qtl")), /*#__PURE__*/React.createElement("div", {
-      className: "w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: `h-full rounded-full transition-all ${capPct > 80 ? 'bg-red-500' : capPct > 50 ? 'bg-amber-400' : 'bg-emerald-500'}`,
-      style: {
-        width: `${capPct}%`
-      }
-    }))), /*#__PURE__*/React.createElement("div", {
-      className: "flex flex-wrap gap-1.5 pt-1"
-    }, (centre.supportedCrops || []).map((crop, idx) => /*#__PURE__*/React.createElement("span", {
-      key: idx,
-      className: "text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700 font-medium"
-    }, crop)))), /*#__PURE__*/React.createElement("div", {
-      className: "pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "text-xs text-slate-500 dark:text-slate-400"
-    }, /*#__PURE__*/React.createElement("i", {
-      className: "fa-solid fa-clock mr-1 text-slate-400"
-    }), centre.operatingHours || '07:00 AM - 06:00 PM'), /*#__PURE__*/React.createElement("button", {
-      onClick: () => {
-        if (onSelectCentre) onSelectCentre(centre);
-        if (navigateTo) navigateTo('slotBooking');
-      },
-      className: "px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs shadow-md transition flex items-center gap-1.5"
-    }, /*#__PURE__*/React.createElement("span", null, "Book Slot Here"), /*#__PURE__*/React.createElement("i", {
-      className: "fa-solid fa-arrow-right text-[10px]"
-    }))));
-  })));
+    className: "fa-regular fa-clock mr-1"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "font-semibold"
+  }, "Operating Hours:"), ' ', centre.operatingHours), /*#__PURE__*/React.createElement("button", {
+    onClick: () => handleBookSlot(centre),
+    disabled: getStatusText(centre.status) !== 'OPEN',
+    className: "px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-sm font-extrabold transition"
+  }, "Book Slot Here", /*#__PURE__*/React.createElement("i", {
+    className: "fa-solid fa-arrow-right ml-2"
+  })))))), filteredCentres.length === 0 && /*#__PURE__*/React.createElement("div", {
+    className: "text-center py-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-4xl mb-3"
+  }, "\uD83D\uDD0E"), /*#__PURE__*/React.createElement("h3", {
+    className: "font-bold text-lg text-slate-900 dark:text-white"
+  }, "No procurement centres found"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-500 mt-1"
+  }, "Try another district or search term.")));
 };
 
 /* --- static/js/pages/CentreDetails.jsx --- */
