@@ -5039,8 +5039,8 @@ window.AdminLogin = function AdminLogin({
   navigateTo,
   onLoginSuccess
 }) {
-  const [adminEmail, setAdminEmail] = React.useState('admin.sih@telangana.gov.in');
-  const [password, setPassword] = React.useState('admin2026');
+  const [adminEmail, setAdminEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
   const [department, setDepartment] = React.useState('Department of Agriculture & Marketing');
   const [showPassword, setShowPassword] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState('');
@@ -5060,7 +5060,7 @@ window.AdminLogin = function AdminLogin({
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          phone: adminEmail,
+          email: adminEmail,
           password: password,
           role: 'ADMIN'
         })
@@ -5080,7 +5080,7 @@ window.AdminLogin = function AdminLogin({
         name: data.user.name,
         role: data.user.role,
         department: department,
-        email: data.user.phone
+        email: data.user.email
       });
       navigateTo('adminDash');
     } catch (error) {
@@ -5088,12 +5088,6 @@ window.AdminLogin = function AdminLogin({
       setErrorMsg('Unable to connect to the server. Please try again.');
       setIsLoading(false);
     }
-  };
-  const fillAdminDemo = () => {
-    setAdminEmail('admin.sih@telangana.gov.in');
-    setPassword('admin2026');
-    setDepartment('Department of Agriculture & Marketing');
-    setErrorMsg('');
   };
   const inputStyle = {
     width: '100%',
@@ -5246,7 +5240,7 @@ window.AdminLogin = function AdminLogin({
     type: "email",
     value: adminEmail,
     onChange: e => setAdminEmail(e.target.value),
-    placeholder: "admin@gov.in",
+    placeholder: "e.g:admin@kisanseva-demo.in",
     style: inputStyle,
     onFocus: e => Object.assign(e.target.style, {
       borderColor: '#2563eb',
@@ -5277,7 +5271,7 @@ window.AdminLogin = function AdminLogin({
     type: showPassword ? "text" : "password",
     value: password,
     onChange: e => setPassword(e.target.value),
-    placeholder: "Enter admin password",
+    placeholder: "Enter Your Password",
     style: {
       ...inputStyle,
       paddingRight: 44
@@ -5308,58 +5302,7 @@ window.AdminLogin = function AdminLogin({
     }
   }, /*#__PURE__*/React.createElement("i", {
     className: `fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`
-  })))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: 'linear-gradient(135deg,#eff6ff,#dbeafe)',
-      border: '1.5px solid rgba(37,99,235,0.25)',
-      borderRadius: 10,
-      padding: '12px 14px'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      fontWeight: 700,
-      color: '#1e40af',
-      marginBottom: 8,
-      letterSpacing: '.04em'
-    }
-  }, "\uD83C\uDFAF QUICK DEMO CREDENTIALS"), /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: fillAdminDemo,
-    style: {
-      width: '100%',
-      background: 'white',
-      border: '1.5px solid rgba(37,99,235,0.3)',
-      borderRadius: 8,
-      padding: '8px 12px',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      transition: 'all 0.2s'
-    },
-    onMouseOver: e => Object.assign(e.currentTarget.style, {
-      background: '#eff6ff',
-      borderColor: '#2563eb'
-    }),
-    onMouseOut: e => Object.assign(e.currentTarget.style, {
-      background: 'white',
-      borderColor: 'rgba(37,99,235,0.3)'
-    })
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 12,
-      fontWeight: 700,
-      color: '#1e40af'
-    }
-  }, "\uD83D\uDCCA Demo State Admin (Dr. V. K. Reddy)"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 11,
-      color: '#2563eb',
-      fontFamily: 'monospace',
-      fontWeight: 700
-    }
-  }, "admin.sih@telangana.gov.in"))), /*#__PURE__*/React.createElement("button", {
+  })))), /*#__PURE__*/React.createElement("button", {
     type: "submit",
     disabled: isLoading,
     style: {
