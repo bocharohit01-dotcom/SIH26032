@@ -103,7 +103,14 @@ window.CentreListing = function CentreListing({
   // PREPARE CENTRE DATA
   // ---------------------------------------------------------
 
-  const preparedCentres = allCentres.filter(centre => String(centre.state || '').trim().toLowerCase() === 'andhra pradesh').map(centre => {
+  const preparedCentres = allCentres.filter(centre => {
+    const state = String(centre.state || '').trim().toLowerCase();
+
+    // Backend centres currently do not contain a state field.
+    // Since this listing is specifically for Andhra Pradesh,
+    // allow centres with no state field until backend data is enriched.
+    return !state || state === 'andhra pradesh';
+  }).map(centre => {
     const liveCentre = liveCentres.find(item => String(item.id) === String(centre.id));
     let distance = Number(centre.distanceKm || 0);
     if (location && centre.lat && centre.lng) {

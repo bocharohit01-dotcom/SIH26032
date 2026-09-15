@@ -185,11 +185,14 @@ const districts = [
 const preparedCentres =
   allCentres
 
-    .filter(
-  centre =>
-    String(centre.state || '').trim().toLowerCase() ===
-    'andhra pradesh'
-)
+    .filter(centre => {
+  const state = String(centre.state || '').trim().toLowerCase();
+
+  // Backend centres currently do not contain a state field.
+  // Since this listing is specifically for Andhra Pradesh,
+  // allow centres with no state field until backend data is enriched.
+  return !state || state === 'andhra pradesh';
+})
     .map(
       centre => {
 
