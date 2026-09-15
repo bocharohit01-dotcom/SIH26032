@@ -666,15 +666,7 @@ h1,h2,h3,h4,h5,h6 {
     box-shadow:0 12px 32px rgba(5,150,105,0.18);
 }
 
-/* Demo Banner Tag */
-.demo-ribbon {
-    position:fixed; top:16px; right:-30px;
-    background:linear-gradient(135deg,#f59e0b,#d97706);
-    color:white; font-size:10px; font-weight:800;
-    padding:4px 40px; transform:rotate(45deg);
-    z-index: index 50;; letter-spacing:.06em;
-    box-shadow:0 2px 8px rgba(245,158,11,0.4);
-}
+
 
 /* Pulse dot */
 .pulse-dot {
