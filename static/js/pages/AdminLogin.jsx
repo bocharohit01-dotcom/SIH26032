@@ -1,38 +1,68 @@
 // Page: Admin Login — Visual Demonstration Theme
 
 window.AdminLogin = function AdminLogin({ navigateTo, onLoginSuccess }) {
-  const [adminEmail, setAdminEmail] = React.useState('admin.sih@telangana.gov.in');
-  const [password, setPassword] = React.useState('admin2026');
+  const [adminEmail, setAdminEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
   const [department, setDepartment] = React.useState('Department of Agriculture & Marketing');
   const [showPassword, setShowPassword] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!adminEmail || !password) {
-      setErrorMsg('Please fill in all credentials.');
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!adminEmail || !password) {
+    setErrorMsg('Please fill in all credentials.');
+    return;
+  }
+
+  setIsLoading(true);
+  setErrorMsg('');
+
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: adminEmail,
+        password: password,
+        role: 'ADMIN'
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setErrorMsg(data.error || 'Invalid admin credentials.');
+      setIsLoading(false);
       return;
     }
-    setIsLoading(true);
-    setErrorMsg('');
-    setTimeout(() => {
-      onLoginSuccess({
-        name: 'Dr. V. K. Reddy (Director)',
-        role: 'ADMIN',
-        department: department,
-        email: adminEmail
-      });
-      navigateTo('adminDash');
-    }, 800);
-  };
 
-  const fillAdminDemo = () => {
-    setAdminEmail('admin.sih@telangana.gov.in');
-    setPassword('admin2026');
-    setDepartment('Department of Agriculture & Marketing');
-    setErrorMsg('');
-  };
+    if (!data.user || data.user.role !== 'ADMIN') {
+      setErrorMsg('This account is not authorized for Admin login.');
+      setIsLoading(false);
+      return;
+    }
+
+    onLoginSuccess({
+      name: data.user.name,
+      role: data.user.role,
+      department: department,
+      email: data.user.email
+    });
+
+    navigateTo('adminDash');
+
+  } catch (error) {
+    console.error('Admin login error:', error);
+    setErrorMsg('Unable to connect to the server. Please try again.');
+    setIsLoading(false);
+  }
+};
+
+ 
 
   const inputStyle = {
     width:'100%', padding:'12px 14px',
@@ -122,7 +152,7 @@ window.AdminLogin = function AdminLogin({ navigateTo, onLoginSuccess }) {
                 type="email"
                 value={adminEmail}
                 onChange={(e) => setAdminEmail(e.target.value)}
-                placeholder="admin@gov.in"
+                placeholder="e.g:admin@kisanseva-demo.in"
                 style={inputStyle}
                 onFocus={e=>Object.assign(e.target.style,{borderColor:'#2563eb',boxShadow:'0 0 0 3px rgba(37,99,235,0.12)'})}
                 onBlur={e=>Object.assign(e.target.style,{borderColor:'#e2e8f0',boxShadow:'none'})}
@@ -141,7 +171,7 @@ window.AdminLogin = function AdminLogin({ navigateTo, onLoginSuccess }) {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter admin password"
+                placeholder="Enter Your Password"
                 style={{...inputStyle, paddingRight:44}}
                 onFocus={e=>Object.assign(e.target.style,{borderColor:'#2563eb',boxShadow:'0 0 0 3px rgba(37,99,235,0.12)'})}
                 onBlur={e=>Object.assign(e.target.style,{borderColor:'#e2e8f0',boxShadow:'none'})}
@@ -161,32 +191,7 @@ window.AdminLogin = function AdminLogin({ navigateTo, onLoginSuccess }) {
             </div>
           </div>
 
-          {/* Demo Credentials Box */}
-          <div style={{
-            background:'linear-gradient(135deg,#eff6ff,#dbeafe)',
-            border:'1.5px solid rgba(37,99,235,0.25)',
-            borderRadius:10, padding:'12px 14px'
-          }}>
-            <div style={{fontSize:11,fontWeight:700,color:'#1e40af',marginBottom:8,letterSpacing:'.04em'}}>
-              🎯 QUICK DEMO CREDENTIALS
-            </div>
-            <button
-              type="button"
-              onClick={fillAdminDemo}
-              style={{
-                width:'100%', background:'white', border:'1.5px solid rgba(37,99,235,0.3)',
-                borderRadius:8, padding:'8px 12px', cursor:'pointer',
-                display:'flex', alignItems:'center', justifyContent:'space-between',
-                transition:'all 0.2s'
-              }}
-              onMouseOver={e=>Object.assign(e.currentTarget.style,{background:'#eff6ff',borderColor:'#2563eb'})}
-              onMouseOut={e=>Object.assign(e.currentTarget.style,{background:'white',borderColor:'rgba(37,99,235,0.3)'})}
-            >
-              <span style={{fontSize:12,fontWeight:700,color:'#1e40af'}}>📊 Demo State Admin (Dr. V. K. Reddy)</span>
-              <span style={{fontSize:11,color:'#2563eb',fontFamily:'monospace',fontWeight:700}}>admin.sih@telangana.gov.in</span>
-            </button>
-          </div>
-
+          
           {/* Submit Button */}
           <button
             type="submit"

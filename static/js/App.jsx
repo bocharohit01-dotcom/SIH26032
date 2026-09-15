@@ -106,7 +106,7 @@ helpSupport: 'Help & Support',
 aboutKisanSeva: 'About KisanSeva',
 logout: 'Logout',
 welcome: 'Welcome',
-activeFarmerPortal: 'Active Farmer Portal . Season 2026',
+activeFarmerPortal: 'Active Farmer Portal Season 2026',
 bookProcurementSlot: 'Book Procurement Slot',
 findCentres: 'Find Centres',
 yourActiveProcurementToken: 'Your Active Procurement Token',
@@ -181,7 +181,7 @@ helpSupport: 'సహాయం & మద్దతు',
 aboutKisanSeva: 'కిసాన్‌సేవ గురించి',
 logout: 'లాగ్ అవుట్',
 welcome: 'స్వాగతం',
-activeFarmerPortal: 'యాక్టివ్ రైతు పోర్టల్ · సీజన్ 2026',
+activeFarmerPortal: 'యాక్టివ్ రైతు పోర్టల్ సీజన్ 2026',
 bookProcurementSlot: 'కొనుగోలు స్లాట్ బుక్ చేయండి',
 findCentres: 'కేంద్రాలను కనుగొనండి',
 yourActiveProcurementToken: 'మీ యాక్టివ్ కొనుగోలు టోకెన్',
@@ -255,7 +255,7 @@ helpSupport: 'सहायता और समर्थन',
 aboutKisanSeva: 'किसानसेवा के बारे में',
 logout: 'लॉग आउट',
 welcome: 'स्वागत है',
-activeFarmerPortal: 'सक्रिय किसान पोर्टल · सीज़न 2026',
+activeFarmerPortal: 'सक्रिय किसान पोर्टल सीज़न 2026',
 bookProcurementSlot: 'खरीद स्लॉट बुक करें',
 findCentres: 'केंद्र खोजें',
 yourActiveProcurementToken: 'आपका सक्रिय खरीद टोकन',
@@ -740,7 +740,7 @@ const goBackAuth = () => {
           textAlign:'center', padding:'16px 24px 24px',
           fontSize:11, color:'#94a3b8', fontFamily:'Inter,sans-serif'
         }}>
-          © 2026 KisanSeva · Intelligent Agricultural Procurement Platform · Department of Agriculture
+          © 2026 KisanSeva - Intelligent Agricultural Procurement Platform - Department of Agriculture
         </div>
       </div>
     </div>

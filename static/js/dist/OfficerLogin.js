@@ -10,7 +10,7 @@ window.OfficerLogin = function OfficerLogin({
   const [showPassword, setShowPassword] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
     if (!officerPhone || !password) {
       setErrorMsg('Please enter officer ID and password.');
@@ -18,15 +18,43 @@ window.OfficerLogin = function OfficerLogin({
     }
     setIsLoading(true);
     setErrorMsg('');
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          phone: officerPhone,
+          password: password,
+          role: 'OFFICER'
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setErrorMsg(data.error || 'Invalid officer credentials.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Extra frontend safety check
+      if (!data.user || data.user.role !== 'OFFICER') {
+        setErrorMsg('This account is not authorized for Officer login.');
+        setIsLoading(false);
+        return;
+      }
       onLoginSuccess({
-        name: 'Rajesh Kumar',
-        role: 'OFFICER',
+        name: data.user.name,
+        role: data.user.role,
         mandi: selectedMandi,
-        phone: officerPhone
+        phone: data.user.phone
       });
       navigateTo('officerDash');
-    }, 800);
+    } catch (error) {
+      console.error('Officer login error:', error);
+      setErrorMsg('Unable to connect to the server. Please try again.');
+      setIsLoading(false);
+    }
   };
   const inputStyle = {
     width: '100%',
@@ -83,7 +111,7 @@ window.OfficerLogin = function OfficerLogin({
       zIndex: 1,
       boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
     }
-  }, "\uD83D\uDC6E"), /*#__PURE__*/React.createElement("h2", {
+  }, "Officer"), /*#__PURE__*/React.createElement("h2", {
     style: {
       fontFamily: 'Outfit,sans-serif',
       fontWeight: 900,

@@ -74,11 +74,11 @@ window.SlotBooking = function SlotBooking({
     className: "bg-gradient-to-r from-emerald-800 to-teal-700 p-5 rounded-2xl border border-emerald-600 shadow-lg text-white flex items-center justify-between gap-4 flex-wrap"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "text-[11px] text-emerald-200 font-bold uppercase tracking-wider"
-  }, "\uD83D\uDCCD Selected Regional Mandi Yard"), /*#__PURE__*/React.createElement("div", {
+  }, "Selected Regional Mandi Yard"), /*#__PURE__*/React.createElement("div", {
     className: "text-xl font-black font-serif mt-0.5"
   }, selectedCentre.name), /*#__PURE__*/React.createElement("div", {
     className: "text-xs text-emerald-100 flex items-center gap-3 mt-1 flex-wrap font-medium"
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDFDB\uFE0F District: ", /*#__PURE__*/React.createElement("strong", null, selectedCentre.district)), /*#__PURE__*/React.createElement("span", null, "\u2022"), /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCCD ", /*#__PURE__*/React.createElement("strong", null, selectedCentre.distanceKm, " km"), " away"), /*#__PURE__*/React.createElement("span", null, "\u2022"), /*#__PURE__*/React.createElement("span", null, "\u23F1\uFE0F ", /*#__PURE__*/React.createElement("strong", null, (selectedCentre.activeQueueLength || 0) * (selectedCentre.avgProcessingMins || 10), " Mins"), " Wait"))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, "District: ", /*#__PURE__*/React.createElement("strong", null, selectedCentre.district)), /*#__PURE__*/React.createElement("span", null, "\u2022"), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("strong", null, selectedCentre.distanceKm, " km"), " away"), /*#__PURE__*/React.createElement("span", null, "\u2022"), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("strong", null, (selectedCentre.activeQueueLength || 0) * (selectedCentre.avgProcessingMins || 10), " Mins"), " Wait"))), /*#__PURE__*/React.createElement("div", {
     className: "w-12 h-12 rounded-2xl bg-white/20 backdrop-blur text-white flex items-center justify-center text-2xl border border-white/30 shadow"
   }, "\uD83C\uDF3E")), /*#__PURE__*/React.createElement("form", {
     onSubmit: handleSubmit,
@@ -98,7 +98,7 @@ window.SlotBooking = function SlotBooking({
   }, centresList.map(c => /*#__PURE__*/React.createElement("option", {
     key: c.id,
     value: c.id
-  }, "\uD83D\uDCCD ", c.name, " \u2014 ", c.district, " (", c.distanceKm, " km away)"))), /*#__PURE__*/React.createElement("p", {
+  }, c.name, " \u2014 ", c.district, " (", c.distanceKm, " km away)"))), /*#__PURE__*/React.createElement("p", {
     className: "text-[11px] text-emerald-700 mt-1 font-semibold"
   }, "Showing nearby centres sorted for your district.")), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 sm:grid-cols-2 gap-4"

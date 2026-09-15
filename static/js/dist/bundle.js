@@ -1546,7 +1546,8 @@ window.FarmerLogin = function FarmerLogin({
         },
         body: JSON.stringify({
           phone: phone,
-          password: password
+          password: password,
+          role: 'FARMER'
         })
       });
       const data = await response.json();
@@ -4449,7 +4450,7 @@ window.OfficerLogin = function OfficerLogin({
   const [showPassword, setShowPassword] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
     if (!officerPhone || !password) {
       setErrorMsg('Please enter officer ID and password.');
@@ -4457,15 +4458,43 @@ window.OfficerLogin = function OfficerLogin({
     }
     setIsLoading(true);
     setErrorMsg('');
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          phone: officerPhone,
+          password: password,
+          role: 'OFFICER'
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setErrorMsg(data.error || 'Invalid officer credentials.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Extra frontend safety check
+      if (!data.user || data.user.role !== 'OFFICER') {
+        setErrorMsg('This account is not authorized for Officer login.');
+        setIsLoading(false);
+        return;
+      }
       onLoginSuccess({
-        name: 'Rajesh Kumar',
-        role: 'OFFICER',
+        name: data.user.name,
+        role: data.user.role,
         mandi: selectedMandi,
-        phone: officerPhone
+        phone: data.user.phone
       });
       navigateTo('officerDash');
-    }, 800);
+    } catch (error) {
+      console.error('Officer login error:', error);
+      setErrorMsg('Unable to connect to the server. Please try again.');
+      setIsLoading(false);
+    }
   };
   const inputStyle = {
     width: '100%',
@@ -5016,7 +5045,7 @@ window.AdminLogin = function AdminLogin({
   const [showPassword, setShowPassword] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
     if (!adminEmail || !password) {
       setErrorMsg('Please fill in all credentials.');
@@ -5024,15 +5053,41 @@ window.AdminLogin = function AdminLogin({
     }
     setIsLoading(true);
     setErrorMsg('');
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          phone: adminEmail,
+          password: password,
+          role: 'ADMIN'
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setErrorMsg(data.error || 'Invalid admin credentials.');
+        setIsLoading(false);
+        return;
+      }
+      if (!data.user || data.user.role !== 'ADMIN') {
+        setErrorMsg('This account is not authorized for Admin login.');
+        setIsLoading(false);
+        return;
+      }
       onLoginSuccess({
-        name: 'Dr. V. K. Reddy (Director)',
-        role: 'ADMIN',
+        name: data.user.name,
+        role: data.user.role,
         department: department,
-        email: adminEmail
+        email: data.user.phone
       });
       navigateTo('adminDash');
-    }, 800);
+    } catch (error) {
+      console.error('Admin login error:', error);
+      setErrorMsg('Unable to connect to the server. Please try again.');
+      setIsLoading(false);
+    }
   };
   const fillAdminDemo = () => {
     setAdminEmail('admin.sih@telangana.gov.in');
@@ -5420,7 +5475,12 @@ window.AdminDashboard = function AdminDashboard({
     className: "text-xs bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-800 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5"
   }, /*#__PURE__*/React.createElement("span", {
     className: "w-2 h-2 rounded-full bg-blue-500 animate-pulse"
-  }), " Department of Agriculture HQ"))), /*#__PURE__*/React.createElement("div", {
+  }), " Department of Agriculture HQ"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => navigateTo('createOfficer'),
+    className: "px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition"
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "fa-solid fa-user-plus mr-2"
+  }), "Create Officer"))), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-2 lg:grid-cols-4 gap-4"
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-2"

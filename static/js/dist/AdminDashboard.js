@@ -1,4 +1,4 @@
-// Page 13: Admin Dashboard Component — Visual Demonstration Theme
+// Page 13: Admin Dashboard Component - Visual Demonstration Theme
 
 window.AdminDashboard = function AdminDashboard({
   navigateTo
@@ -86,7 +86,12 @@ window.AdminDashboard = function AdminDashboard({
     className: "text-xs bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-800 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5"
   }, /*#__PURE__*/React.createElement("span", {
     className: "w-2 h-2 rounded-full bg-blue-500 animate-pulse"
-  }), " Department of Agriculture HQ"))), /*#__PURE__*/React.createElement("div", {
+  }), " Department of Agriculture HQ"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => navigateTo('createOfficer'),
+    className: "px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition"
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "fa-solid fa-user-plus mr-2"
+  }), "Create Officer"))), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-2 lg:grid-cols-4 gap-4"
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-2"
@@ -96,7 +101,7 @@ window.AdminDashboard = function AdminDashboard({
     className: "text-xs text-slate-500 dark:text-slate-400 font-semibold"
   }, "Registered Farmers"), /*#__PURE__*/React.createElement("div", {
     className: "w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm border border-emerald-200 dark:border-emerald-800"
-  }, "\uD83D\uDC65")), /*#__PURE__*/React.createElement("div", {
+  }, "People")), /*#__PURE__*/React.createElement("div", {
     className: "text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-serif"
   }, (analytics.totalRegisteredFarmers || 0).toLocaleString('en-IN')), /*#__PURE__*/React.createElement("span", {
     className: "text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold"
@@ -108,7 +113,7 @@ window.AdminDashboard = function AdminDashboard({
     className: "text-xs text-slate-500 dark:text-slate-400 font-semibold"
   }, "Active Centres"), /*#__PURE__*/React.createElement("div", {
     className: "w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm border border-blue-200 dark:border-blue-800"
-  }, "\uD83C\uDFDB\uFE0F")), /*#__PURE__*/React.createElement("div", {
+  }, "Yard")), /*#__PURE__*/React.createElement("div", {
     className: "text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-serif"
   }, analytics.activeCentres, " Yards"), /*#__PURE__*/React.createElement("span", {
     className: "text-[10px] text-blue-600 dark:text-blue-400 font-semibold"
@@ -120,7 +125,7 @@ window.AdminDashboard = function AdminDashboard({
     className: "text-xs text-slate-500 dark:text-slate-400 font-semibold"
   }, "Procured Volume"), /*#__PURE__*/React.createElement("div", {
     className: "w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center text-sm border border-amber-200 dark:border-amber-800"
-  }, "\uD83C\uDF3E")), /*#__PURE__*/React.createElement("div", {
+  }, "Grain")), /*#__PURE__*/React.createElement("div", {
     className: "text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 font-serif"
   }, (analytics.totalProcuredQuintals || 0).toLocaleString('en-IN'), " Qtl"), /*#__PURE__*/React.createElement("span", {
     className: "text-[10px] text-amber-600 dark:text-amber-400 font-semibold"
@@ -132,9 +137,9 @@ window.AdminDashboard = function AdminDashboard({
     className: "text-xs text-slate-500 dark:text-slate-400 font-semibold"
   }, "Direct Bank Payouts"), /*#__PURE__*/React.createElement("div", {
     className: "w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400 flex items-center justify-center text-sm border border-teal-200 dark:border-teal-800"
-  }, "\uD83D\uDCB0")), /*#__PURE__*/React.createElement("div", {
+  }, "Payout")), /*#__PURE__*/React.createElement("div", {
     className: "text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 font-serif"
-  }, "\u20B9 ", analytics.totalPayoutDistributedCr, " Cr"), /*#__PURE__*/React.createElement("span", {
+  }, "INR ", analytics.totalPayoutDistributedCr, " Cr"), /*#__PURE__*/React.createElement("span", {
     className: "text-[10px] text-teal-600 dark:text-teal-400 font-semibold"
   }, "Direct DBT Transfers"))), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 lg:grid-cols-2 gap-6"

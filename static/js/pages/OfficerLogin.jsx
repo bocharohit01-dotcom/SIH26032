@@ -8,25 +8,60 @@ window.OfficerLogin = function OfficerLogin({ navigateTo, onLoginSuccess }) {
   const [errorMsg, setErrorMsg] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!officerPhone || !password) {
-      setErrorMsg('Please enter officer ID and password.');
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!officerPhone || !password) {
+    setErrorMsg('Please enter officer ID and password.');
+    return;
+  }
+
+  setIsLoading(true);
+  setErrorMsg('');
+
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        phone: officerPhone,
+        password: password,
+        role: 'OFFICER'
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setErrorMsg(data.error || 'Invalid officer credentials.');
+      setIsLoading(false);
       return;
     }
-    setIsLoading(true);
-    setErrorMsg('');
-    setTimeout(() => {
-      onLoginSuccess({
-        name: 'Rajesh Kumar',
-        role: 'OFFICER',
-        mandi: selectedMandi,
-        phone: officerPhone
-      });
-      navigateTo('officerDash');
-    }, 800);
-  };
 
+    // Extra frontend safety check
+    if (!data.user || data.user.role !== 'OFFICER') {
+      setErrorMsg('This account is not authorized for Officer login.');
+      setIsLoading(false);
+      return;
+    }
+
+    onLoginSuccess({
+      name: data.user.name,
+      role: data.user.role,
+      mandi: selectedMandi,
+      phone: data.user.phone
+    });
+
+    navigateTo('officerDash');
+
+  } catch (error) {
+    console.error('Officer login error:', error);
+    setErrorMsg('Unable to connect to the server. Please try again.');
+    setIsLoading(false);
+  }
+};
   
 
   const inputStyle = {
@@ -58,7 +93,7 @@ window.OfficerLogin = function OfficerLogin({ navigateTo, onLoginSuccess }) {
           position:'relative', zIndex:1,
           boxShadow:'0 8px 24px rgba(0,0,0,0.15)'
         }}>
-          👮
+          Officer
         </div>
         <h2 style={{fontFamily:'Outfit,sans-serif',fontWeight:900,fontSize:26,color:'white',
           margin:'0 0 6px',position:'relative',zIndex:1}}>

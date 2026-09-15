@@ -76,15 +76,15 @@ window.SlotBooking = function SlotBooking({ navigateTo, centre, centres, onSelec
       <div className="bg-gradient-to-r from-emerald-800 to-teal-700 p-5 rounded-2xl border border-emerald-600 shadow-lg text-white flex items-center justify-between gap-4 flex-wrap">
         <div>
           <div className="text-[11px] text-emerald-200 font-bold uppercase tracking-wider">
-            📍 Selected Regional Mandi Yard
+            Selected Regional Mandi Yard
           </div>
           <div className="text-xl font-black font-serif mt-0.5">{selectedCentre.name}</div>
           <div className="text-xs text-emerald-100 flex items-center gap-3 mt-1 flex-wrap font-medium">
-            <span>🏛️ District: <strong>{selectedCentre.district}</strong></span>
+            <span>District: <strong>{selectedCentre.district}</strong></span>
             <span>•</span>
-            <span>📍 <strong>{selectedCentre.distanceKm} km</strong> away</span>
+            <span><strong>{selectedCentre.distanceKm} km</strong> away</span>
             <span>•</span>
-            <span>⏱️ <strong>{(selectedCentre.activeQueueLength || 0) * (selectedCentre.avgProcessingMins || 10)} Mins</strong> Wait</span>
+            <span><strong>{(selectedCentre.activeQueueLength || 0) * (selectedCentre.avgProcessingMins || 10)} Mins</strong> Wait</span>
           </div>
         </div>
 
@@ -109,7 +109,7 @@ window.SlotBooking = function SlotBooking({ navigateTo, centre, centres, onSelec
           >
             {centresList.map(c => (
               <option key={c.id} value={c.id}>
-                📍 {c.name} — {c.district} ({c.distanceKm} km away)
+                {c.name} — {c.district} ({c.distanceKm} km away)
               </option>
             ))}
           </select>

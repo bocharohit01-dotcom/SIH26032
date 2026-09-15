@@ -438,7 +438,7 @@ window.DEMO_DATA = {
     {
       id: 1,
       farmerId: "9876543210",
-      title: "🎟️ Slot Confirmed",
+      title: "Ticket Slot Confirmed",
       message: "Token TK-2026-104 confirmed for Bhimavaram APMC Yard.",
       timestamp: "10 mins ago",
       type: "SUCCESS",
@@ -447,7 +447,7 @@ window.DEMO_DATA = {
     {
       id: 2,
       farmerId: "9876543210",
-      title: "📢 Queue Alert",
+      title: "Alert Queue Alert",
       message: "Your turn is estimated in 15 minutes. Please proceed to Gate #1.",
       timestamp: "5 mins ago",
       type: "INFO",

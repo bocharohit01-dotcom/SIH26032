@@ -167,7 +167,7 @@ function App() {
       aboutKisanSeva: 'About KisanSeva',
       logout: 'Logout',
       welcome: 'Welcome',
-      activeFarmerPortal: 'Active Farmer Portal . Season 2026',
+      activeFarmerPortal: 'Active Farmer Portal Season 2026',
       bookProcurementSlot: 'Book Procurement Slot',
       findCentres: 'Find Centres',
       yourActiveProcurementToken: 'Your Active Procurement Token',
@@ -237,7 +237,7 @@ function App() {
       aboutKisanSeva: 'కిసాన్‌సేవ గురించి',
       logout: 'లాగ్ అవుట్',
       welcome: 'స్వాగతం',
-      activeFarmerPortal: 'యాక్టివ్ రైతు పోర్టల్ · సీజన్ 2026',
+      activeFarmerPortal: 'యాక్టివ్ రైతు పోర్టల్ సీజన్ 2026',
       bookProcurementSlot: 'కొనుగోలు స్లాట్ బుక్ చేయండి',
       findCentres: 'కేంద్రాలను కనుగొనండి',
       yourActiveProcurementToken: 'మీ యాక్టివ్ కొనుగోలు టోకెన్',
@@ -306,7 +306,7 @@ function App() {
       aboutKisanSeva: 'किसानसेवा के बारे में',
       logout: 'लॉग आउट',
       welcome: 'स्वागत है',
-      activeFarmerPortal: 'सक्रिय किसान पोर्टल · सीज़न 2026',
+      activeFarmerPortal: 'सक्रिय किसान पोर्टल सीज़न 2026',
       bookProcurementSlot: 'खरीद स्लॉट बुक करें',
       findCentres: 'केंद्र खोजें',
       yourActiveProcurementToken: 'आपका सक्रिय खरीद टोकन',
@@ -795,7 +795,7 @@ function App() {
         color: '#94a3b8',
         fontFamily: 'Inter,sans-serif'
       }
-    }, "\xA9 2026 KisanSeva \xB7 Intelligent Agricultural Procurement Platform \xB7 Department of Agriculture")));
+    }, "\xA9 2026 KisanSeva - Intelligent Agricultural Procurement Platform - Department of Agriculture")));
   }
 
   // ══════════════════════════════════════════════════════════

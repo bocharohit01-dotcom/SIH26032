@@ -10,6 +10,7 @@ from database import (
     init_db,
     get_all_documents,
     get_user_by_phone,
+    get_user_by_email,
     create_user,
     get_centres,
     get_centre,
@@ -112,10 +113,7 @@ def register():
     phone = data.get("phone")
     password = data.get("password")
 
-    role = data.get(
-        "role",
-        "FARMER"
-    ).upper()
+    role = "FARMER"
 
     location_name = data.get(
         "location_name",
@@ -193,33 +191,65 @@ def login():
 
     data = request.json or {}
 
-    phone = data.get("phone")
+    email = str(data.get("email", "")).strip().lower()
+    phone = str(data.get("phone", "")).strip()
     password = data.get("password")
 
-    if not phone or not password:
+    requested_role = str(
+        data.get("role", "")
+    ).upper().strip()
 
+    if not password:
         return jsonify({
-            "error": "Phone and password are required."
+            "error": "Password is required."
         }), 400
 
-    user = get_user_by_phone(phone)
+    # ADMIN LOGIN → EMAIL
+    if requested_role == "ADMIN":
+
+        if not email:
+            return jsonify({
+                "error": "Admin email is required."
+            }), 400
+
+        user = get_user_by_email(email)
+
+    # FARMER / OFFICER LOGIN → PHONE
+    else:
+
+        if not phone:
+            return jsonify({
+                "error": "Phone number is required."
+            }), 400
+
+        user = get_user_by_phone(phone)
 
     if not user:
-
         return jsonify({
-            "error": "Invalid phone number or password."
+            "error": "Invalid login credentials."
         }), 401
 
     if str(user.get("password")) != str(password):
-
         return jsonify({
-            "error": "Invalid phone number or password."
+            "error": "Invalid login credentials."
         }), 401
+
+    actual_role = str(
+        user.get("role", "")
+    ).upper().strip()
+
+    if requested_role and actual_role != requested_role:
+        return jsonify({
+            "error":
+                f"This account is not authorized for "
+                f"{requested_role.title()} login."
+        }), 403
 
     safe_user = {
         "id": user.get("id"),
         "name": user.get("name"),
         "phone": user.get("phone"),
+        "email": user.get("email"),
         "role": user.get("role"),
         "location_name": user.get("location_name"),
         "lat": user.get("lat"),
@@ -230,12 +260,6 @@ def login():
         "message": "Login successful!",
         "user": safe_user
     }), 200
-
-
-# =========================================================
-# CENTRE DISCOVERY
-# =========================================================
-
 @app.route("/api/centres", methods=["GET"])
 def get_centres_route():
 

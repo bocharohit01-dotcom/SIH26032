@@ -1,4 +1,4 @@
-// Page 13: Admin Dashboard Component — Visual Demonstration Theme
+// Page 13: Admin Dashboard Component - Visual Demonstration Theme
 
 window.AdminDashboard = function AdminDashboard({ navigateTo }) {
   const defaultAnalytics = {
@@ -50,6 +50,13 @@ window.AdminDashboard = function AdminDashboard({ navigateTo }) {
           <span className="text-xs bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-800 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span> Department of Agriculture HQ
           </span>
+          <button
+  onClick={() => navigateTo('createOfficer')}
+  className="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition"
+>
+  <i className="fa-solid fa-user-plus mr-2"></i>
+  Create Officer
+</button>
         </div>
       </div>
 
@@ -60,7 +67,7 @@ window.AdminDashboard = function AdminDashboard({ navigateTo }) {
           <div className="flex items-center justify-between">
             <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">Registered Farmers</span>
             <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm border border-emerald-200 dark:border-emerald-800">
-              👥
+              People
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-serif">
@@ -73,7 +80,7 @@ window.AdminDashboard = function AdminDashboard({ navigateTo }) {
           <div className="flex items-center justify-between">
             <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">Active Centres</span>
             <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm border border-blue-200 dark:border-blue-800">
-              🏛️
+              Yard
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-serif">{analytics.activeCentres} Yards</div>
@@ -84,7 +91,7 @@ window.AdminDashboard = function AdminDashboard({ navigateTo }) {
           <div className="flex items-center justify-between">
             <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">Procured Volume</span>
             <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center text-sm border border-amber-200 dark:border-amber-800">
-              🌾
+              Grain
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 font-serif">
@@ -97,11 +104,11 @@ window.AdminDashboard = function AdminDashboard({ navigateTo }) {
           <div className="flex items-center justify-between">
             <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">Direct Bank Payouts</span>
             <div className="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400 flex items-center justify-center text-sm border border-teal-200 dark:border-teal-800">
-              💰
+              Payout
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 font-serif">
-            ₹ {analytics.totalPayoutDistributedCr} Cr
+            INR {analytics.totalPayoutDistributedCr} Cr
           </div>
           <span className="text-[10px] text-teal-600 dark:text-teal-400 font-semibold">Direct DBT Transfers</span>
         </div>

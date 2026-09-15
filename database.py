@@ -163,7 +163,14 @@ def get_user_by_phone(phone):
             return user
 
     return None
+def get_user_by_email(email):
+    email = str(email).strip().lower()
 
+    for user in get_all_documents("users"):
+        if str(user.get("email", "")).strip().lower() == email:
+            return user
+
+    return None
 
 def create_user(data):
     user = dict(data)

@@ -25,7 +25,8 @@ window.FarmerLogin = function FarmerLogin({
         },
         body: JSON.stringify({
           phone: phone,
-          password: password
+          password: password,
+          role: 'FARMER'
         })
       });
       const data = await response.json();

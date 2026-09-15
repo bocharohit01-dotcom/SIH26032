@@ -27,7 +27,8 @@ window.FarmerLogin = function FarmerLogin({ navigateTo, onLoginSuccess }) {
       },
       body: JSON.stringify({
         phone: phone,
-        password: password
+        password: password,
+        role:'FARMER'
       })
     });
 

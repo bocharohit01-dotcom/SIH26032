@@ -10,7 +10,7 @@ window.AdminLogin = function AdminLogin({
   const [showPassword, setShowPassword] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
     if (!adminEmail || !password) {
       setErrorMsg('Please fill in all credentials.');
@@ -18,15 +18,41 @@ window.AdminLogin = function AdminLogin({
     }
     setIsLoading(true);
     setErrorMsg('');
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          phone: adminEmail,
+          password: password,
+          role: 'ADMIN'
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setErrorMsg(data.error || 'Invalid admin credentials.');
+        setIsLoading(false);
+        return;
+      }
+      if (!data.user || data.user.role !== 'ADMIN') {
+        setErrorMsg('This account is not authorized for Admin login.');
+        setIsLoading(false);
+        return;
+      }
       onLoginSuccess({
-        name: 'Dr. V. K. Reddy (Director)',
-        role: 'ADMIN',
+        name: data.user.name,
+        role: data.user.role,
         department: department,
-        email: adminEmail
+        email: data.user.phone
       });
       navigateTo('adminDash');
-    }, 800);
+    } catch (error) {
+      console.error('Admin login error:', error);
+      setErrorMsg('Unable to connect to the server. Please try again.');
+      setIsLoading(false);
+    }
   };
   const fillAdminDemo = () => {
     setAdminEmail('admin.sih@telangana.gov.in');
