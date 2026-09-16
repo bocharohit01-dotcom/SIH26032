@@ -465,8 +465,14 @@ function App() {
     setAuthHistory([]);
     setCurrentPage('farmerDash');
   };
+  const generateNextToken = centre => {
+    const prefix = String(centre?.code || centre?.name || 'CTR').replace(/[^A-Za-z0-9]/g, '').slice(0, 3).toUpperCase() || 'CTR';
+    const numbers = (bookings || []).filter(b => b.isPrototypeBooking === true).map(b => String(b.tokenNumber || '')).filter(token => token.startsWith(`${prefix}-`)).map(token => Number(token.slice(prefix.length + 1))).filter(Number.isFinite);
+    const nextNumber = numbers.length ? Math.max(...numbers) + 1 : 1;
+    return `${prefix}-${String(nextNumber).padStart(4, '0')}`;
+  };
   const handleCreateBooking = newBooking => {
-    setBookings([newBooking, ...bookings]);
+    setBookings(prev => [newBooking, ...prev]);
     setActiveBooking(newBooking);
     const newNotif = {
       id: Date.now(),
@@ -477,7 +483,7 @@ function App() {
       type: "SUCCESS",
       read: false
     };
-    setNotifications([newNotif, ...notifications]);
+    setNotifications(prev => [newNotif, ...prev]);
   };
   const handleUpdateBookingStatus = (tokenNum, nextStatus, verifiedQty, qualityGrade, calcPayout) => {
     setBookings(prev => prev.map(b => {
@@ -866,7 +872,9 @@ function App() {
     onSelectCentre: c => setSelectedCentre(c),
     slots: slots,
     onCreateBooking: handleCreateBooking,
-    user: user
+    user: user,
+    bookins: bookings,
+    generateNextToken: generateNextToken
   }), currentPage === 'bookingConfirmation' && /*#__PURE__*/React.createElement(window.BookingConfirmation, {
     navigateTo: navigateTo,
     booking: activeBooking

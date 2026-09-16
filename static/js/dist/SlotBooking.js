@@ -7,7 +7,9 @@ window.SlotBooking = function SlotBooking({
   onSelectCentre,
   slots,
   onCreateBooking,
-  user
+  user,
+  bookings = [],
+  generateNextToken
 }) {
   const centresList = centres || window.DEMO_DATA && window.DEMO_DATA.centres || [];
   const selectedCentre = centre || centresList[0] || {};
@@ -28,30 +30,43 @@ window.SlotBooking = function SlotBooking({
     const chosenSlot = availableSlots.find(s => s.id === selectedSlotId) || availableSlots[0] || {
       timeWindow: "08:00 AM - 10:00 AM"
     };
+    const activeStatuses = ['BOOKED', 'CHECKED_IN', 'QUALITY_CHECK', 'WEIGHED'];
+    const matchingBookings = bookings.filter(b => b.isPrototypeBooking === true && String(b.centreId) === String(selectedCentre.id) && b.slotDate === slotDate && b.timeWindow === chosenSlot.timeWindow && activeStatuses.includes(String(b.status || '').toUpperCase()));
+    const farmersAhead = matchingBookings.length;
+    const queuePosition = farmersAhead + 1;
+    const avgProcessingMins = Number(selectedCentre.avg_processing_mins || 10);
+    const estWaitMins = farmersAhead * avgProcessingMins;
+    const tokenNumber = generateNextToken ? generateNextToken(selectedCentre) : `CTR-${String(Date.now()).slice(-6)}`;
     const newBooking = {
-      id: Date.now(),
-      tokenNumber: `TK-2026-${Math.floor(100 + Math.random() * 900)}`,
-      farmerName: user && user.name || 'Ramesh Patel',
-      farmerPhone: user && user.phone || '9876543210',
-      farmerVillage: user && user.village || 'Bhimavaram Town, West Godavari',
-      district: selectedCentre.district || 'West Godavari',
-      centreId: selectedCentre.id || 101,
-      centreName: selectedCentre.name || 'Bhimavaram APMC Agricultural Market Yard',
-      cropType: cropType,
+      id: `BK-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      tokenNumber,
+      farmerName: user && user.name || 'Farmer',
+      farmerPhone: user && user.phone || '',
+      farmerVillage: user && user.village || '',
+      district: selectedCentre.district || '',
+      centreId: selectedCentre.id,
+      centreName: selectedCentre.name || '',
+      cropType,
       estimatedQty: Number(estimatedQty),
       verifiedQty: null,
       qualityGrade: null,
       mspRate: 2300,
       totalPayout: null,
-      slotDate: slotDate,
+      slotDate,
       timeWindow: chosenSlot.timeWindow,
       status: 'BOOKED',
-      queuePosition: (selectedCentre.activeQueueLength || 1) + 1,
-      tokensAhead: selectedCentre.activeQueueLength || 1,
-      currentlyServing: 'TK-2026-104',
-      estWaitMins: ((selectedCentre.activeQueueLength || 1) + 1) * (selectedCentre.avgProcessingMins || 10),
-      qrCode: `KisanSeva-TK-2026-NEW-${Date.now()}`
+      queuePosition,
+      tokensAhead: farmersAhead,
+      currentlyServing: matchingBookings.length > 0 ? matchingBookings[matchingBookings.length - 1].tokenNumber : null,
+      estWaitMins,
+      qrCode: `KisanSeva-${tokenNumber}-${Date.now()}`,
+      isPrototypeBooking: true,
+      createdAt: new Date().toISOString()
     };
+    if (onCreateBooking) {
+      onCreateBooking(newBooking);
+    }
+    navigateTo('bookingConfirmation');
     if (onCreateBooking) onCreateBooking(newBooking);
     navigateTo('bookingConfirmation');
   };
