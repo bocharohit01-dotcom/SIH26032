@@ -2629,11 +2629,6 @@ window.FarmerDashboard = function FarmerDashboard({
   };
   const confirmCancel = () => {
     if (!cancelReason) return;
-    setMyBookings(prev => prev.map(b => b.id === cancelTarget.id ? {
-      ...b,
-      status: 'CANCELLED',
-      cancelReason
-    } : b));
     if (onCancelBooking) {
       onCancelBooking(cancelTarget.id, cancelReason);
     }

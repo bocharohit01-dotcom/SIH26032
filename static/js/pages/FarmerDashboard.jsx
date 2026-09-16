@@ -99,18 +99,18 @@ React.useEffect(() => {
   };
 
   const confirmCancel = () => {
-    if (!cancelReason) return;
-    setMyBookings(prev => prev.map(b =>
-      b.id === cancelTarget.id ? { ...b, status: 'CANCELLED', cancelReason } : b
-    ));
-    if (onCancelBooking) {
-  onCancelBooking(cancelTarget.id,cancelReason);
-}
-    setCancelSuccess(cancelTarget.tokenNumber);
-    setShowCancelModal(false);
-    setCancelTarget(null);
-    setTimeout(() => setCancelSuccess(null), 4000);
-  };
+  if (!cancelReason) return;
+
+  if (onCancelBooking) {
+    onCancelBooking(cancelTarget.id, cancelReason);
+  }
+
+  setCancelSuccess(cancelTarget.tokenNumber);
+  setShowCancelModal(false);
+  setCancelTarget(null);
+
+  setTimeout(() => setCancelSuccess(null), 4000);
+};
 
   const activeSlot =
   (activeBooking &&
