@@ -31,6 +31,12 @@ window.SlotBooking = function SlotBooking({
       timeWindow: "08:00 AM - 10:00 AM"
     };
     const activeStatuses = ['BOOKED', 'CHECKED_IN', 'QUALITY_CHECK', 'WEIGHED'];
+    console.log("QUEUE DEBUG", {
+      selectedCentreId: selectedCentre.id,
+      slotDate,
+      timeWindow: chosenSlot.timeWindow,
+      bookings
+    });
     const matchingBookings = bookings.filter(b => b.isPrototypeBooking === true && String(b.centreId) === String(selectedCentre.id) && b.slotDate === slotDate && b.timeWindow === chosenSlot.timeWindow && activeStatuses.includes(String(b.status || '').toUpperCase()));
     const farmersAhead = matchingBookings.length;
     const queuePosition = farmersAhead + 1;

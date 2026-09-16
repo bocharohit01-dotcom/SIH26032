@@ -112,20 +112,17 @@ React.useEffect(() => {
   setTimeout(() => setCancelSuccess(null), 4000);
 };
 
-  const activeSlot =
-  (activeBooking &&
-   String(activeBooking.farmerPhone || '') === String(user?.phone || '') &&
-   activeBooking.status !== 'COMPLETED' &&
-   activeBooking.status !== 'CANCELLED')
-    ? activeBooking
-    : myBookings.find(
-        b =>
-          b.status !== 'COMPLETED' &&
-          b.status !== 'CANCELLED'
-      );
- 
-  const pastBookings = myBookings.filter(b => b.status === 'COMPLETED' || b.status === 'CANCELLED');
+ const activeBookings = myBookings.filter(
+  b =>
+    b.status !== 'COMPLETED' &&
+    b.status !== 'CANCELLED'
+);
 
+const pastBookings = myBookings.filter(
+  b =>
+    b.status === 'COMPLETED' ||
+    b.status === 'CANCELLED'
+);
   const statusColors = {
     BOOKED:         { bg:'#dbeafe', color:'#1d4ed8', icon:'fa-calendar-check' },
     CHECKED_IN:     { bg:'#d1fae5', color:'#065f46', icon:'fa-door-open' },
@@ -424,7 +421,7 @@ React.useEffect(() => {
         </div>
       </div>
       {/* ── ACTIVE BOOKING CARD ─────────────────────────── */}
-      {activeSlot && (
+      {activeBookings.length > 0 && (
         <div style={{marginBottom:28}}>
 
           <div style={{
@@ -475,6 +472,14 @@ React.useEffect(() => {
             </span>
           </div>
 
+
+{/* ── BOOKING CARDS ───────────────────────────── */}
+
+{activeBookings.map((activeSlot) => (
+  <div
+    key={activeSlot.id}
+    style={{marginBottom:16}}
+  >
 
           {/* ── BOOKING CARD ───────────────────────────── */}
           <div style={{
@@ -802,6 +807,8 @@ React.useEffect(() => {
             </div>
 
           </div>
+        </div>
+      ))}
         </div>
       )}
       {/* ── PAST BOOKINGS ─────────────────────────────── */}

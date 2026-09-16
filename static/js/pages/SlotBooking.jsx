@@ -29,6 +29,13 @@ window.SlotBooking = function SlotBooking({ navigateTo, centre, centres, onSelec
   'WEIGHED'
 ];
 
+console.log("QUEUE DEBUG", {
+  selectedCentreId: selectedCentre.id,
+  slotDate,
+  timeWindow: chosenSlot.timeWindow,
+  bookings
+});
+
 const matchingBookings = bookings
   .filter(b =>
     b.isPrototypeBooking === true &&

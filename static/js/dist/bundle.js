@@ -2637,7 +2637,7 @@ window.FarmerDashboard = function FarmerDashboard({
     setCancelTarget(null);
     setTimeout(() => setCancelSuccess(null), 4000);
   };
-  const activeSlot = activeBooking && String(activeBooking.farmerPhone || '') === String(user?.phone || '') && activeBooking.status !== 'COMPLETED' && activeBooking.status !== 'CANCELLED' ? activeBooking : myBookings.find(b => b.status !== 'COMPLETED' && b.status !== 'CANCELLED');
+  const activeBookings = myBookings.filter(b => b.status !== 'COMPLETED' && b.status !== 'CANCELLED');
   const pastBookings = myBookings.filter(b => b.status === 'COMPLETED' || b.status === 'CANCELLED');
   const statusColors = {
     BOOKED: {
@@ -3180,7 +3180,7 @@ window.FarmerDashboard = function FarmerDashboard({
     style: {
       fontSize: 10
     }
-  })))))), activeSlot && /*#__PURE__*/React.createElement("div", {
+  })))))), activeBookings.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 28
     }
@@ -3228,7 +3228,12 @@ window.FarmerDashboard = function FarmerDashboard({
       display: 'inline-block',
       animation: 'pulse 2s infinite'
     }
-  }), t('liveStatus'))), /*#__PURE__*/React.createElement("div", {
+  }), t('liveStatus'))), activeBookings.map(activeSlot => /*#__PURE__*/React.createElement("div", {
+    key: activeSlot.id,
+    style: {
+      marginBottom: 16
+    }
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
       background: 'white',
       borderRadius: 20,
@@ -3461,7 +3466,7 @@ window.FarmerDashboard = function FarmerDashboard({
     })
   }, /*#__PURE__*/React.createElement("i", {
     className: "fa-solid fa-circle-xmark"
-  }), t('cancelSlot'))))), pastBookings.length > 0 && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+  }), t('cancelSlot'))))))), pastBookings.length > 0 && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
     style: {
       fontFamily: 'Outfit,sans-serif',
       fontWeight: 800,
@@ -4082,6 +4087,12 @@ window.SlotBooking = function SlotBooking({
       timeWindow: "08:00 AM - 10:00 AM"
     };
     const activeStatuses = ['BOOKED', 'CHECKED_IN', 'QUALITY_CHECK', 'WEIGHED'];
+    console.log("QUEUE DEBUG", {
+      selectedCentreId: selectedCentre.id,
+      slotDate,
+      timeWindow: chosenSlot.timeWindow,
+      bookings
+    });
     const matchingBookings = bookings.filter(b => b.isPrototypeBooking === true && String(b.centreId) === String(selectedCentre.id) && b.slotDate === slotDate && b.timeWindow === chosenSlot.timeWindow && activeStatuses.includes(String(b.status || '').toUpperCase()));
     const farmersAhead = matchingBookings.length;
     const queuePosition = farmersAhead + 1;
