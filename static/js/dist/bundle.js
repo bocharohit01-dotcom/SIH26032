@@ -4094,6 +4094,8 @@ window.SlotBooking = function SlotBooking({
       bookings
     });
     const matchingBookings = bookings.filter(b => b.isPrototypeBooking === true && String(b.centreId) === String(selectedCentre.id) && b.slotDate === slotDate && b.timeWindow === chosenSlot.timeWindow && activeStatuses.includes(String(b.status || '').toUpperCase()));
+    console.log("MATCHING BOOKINGS", matchingBookings);
+    console.log("ALL BOOKINGS", bookings);
     const farmersAhead = matchingBookings.length;
     const queuePosition = farmersAhead + 1;
     const avgProcessingMins = Number(selectedCentre.avg_processing_mins || 10);

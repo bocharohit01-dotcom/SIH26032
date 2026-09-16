@@ -46,6 +46,8 @@ const matchingBookings = bookings
       String(b.status || '').toUpperCase()
     )
   );
+  console.log("MATCHING BOOKINGS", matchingBookings);
+console.log("ALL BOOKINGS", bookings);
 
 const farmersAhead = matchingBookings.length;
 
