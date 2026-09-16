@@ -854,6 +854,15 @@ function App() {
     navigateTo: navigateTo,
     user: user,
     activeBooking: activeBooking,
+    bookings: bookings,
+    onCancelBooking: (bookingId, cancelReason) => {
+      setBookings(prev => prev.map(b => b.id === bookingId ? {
+        ...b,
+        status: 'CANCELLED',
+        cancelReason
+      } : b));
+      setActiveBooking(prev => prev && prev.id === bookingId ? null : prev);
+    },
     t: t,
     selectedLanguage: selectedLanguage,
     transliterateFarmerName: transliterateFarmerName

@@ -4,6 +4,8 @@ window.FarmerDashboard = function FarmerDashboard({
   navigateTo,
   user,
   activeBooking,
+  bookings,
+  onCancelBooking,
   t,
   selectedLanguage,
   transliterateFarmerName
@@ -52,7 +54,7 @@ window.FarmerDashboard = function FarmerDashboard({
     });
   }, []);
   // All bookings the farmer can manage
-  const [myBookings, setMyBookings] = React.useState((window.DEMO_DATA.sampleBookings || []).filter(b => b.farmerPhone === (user && user.phone ? user.phone : '9876543210')));
+  const myBookings = (bookings || []).filter(b => String(b.farmerPhone || '') === String(user?.phone || ''));
   const [cancelTarget, setCancelTarget] = React.useState(null); // booking to cancel
   const [cancelReason, setCancelReason] = React.useState('');
   const [showCancelModal, setShowCancelModal] = React.useState(false);
@@ -81,12 +83,15 @@ window.FarmerDashboard = function FarmerDashboard({
       status: 'CANCELLED',
       cancelReason
     } : b));
+    if (onCancelBooking) {
+      onCancelBooking(cancelTarget.id, cancelReason);
+    }
     setCancelSuccess(cancelTarget.tokenNumber);
     setShowCancelModal(false);
     setCancelTarget(null);
     setTimeout(() => setCancelSuccess(null), 4000);
   };
-  const activeSlot = activeBooking && activeBooking.status !== 'COMPLETED' && activeBooking.status !== 'CANCELLED' ? activeBooking : myBookings.find(b => b.status !== 'COMPLETED' && b.status !== 'CANCELLED');
+  const activeSlot = activeBooking && String(activeBooking.farmerPhone || '') === String(user?.phone || '') && activeBooking.status !== 'COMPLETED' && activeBooking.status !== 'CANCELLED' ? activeBooking : myBookings.find(b => b.status !== 'COMPLETED' && b.status !== 'CANCELLED');
   const pastBookings = myBookings.filter(b => b.status === 'COMPLETED' || b.status === 'CANCELLED');
   const statusColors = {
     BOOKED: {
